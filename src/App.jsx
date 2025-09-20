@@ -6,6 +6,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
+import profilePic from '../assets/profilePic.jpg';
+import restaurant from '../assets/restaurant.png';
+import techFlow from '../assets/techFlow.png';
+import gym from '../assets/gym.png';
 
 // --- SVG ICONS ---
 // Using functional components for SVG icons for reusability and clarity.
@@ -63,7 +67,7 @@ const MongoIcon = () => (<svg className="w-12 h-12" viewBox="0 0 24 24"><path fi
 const TailwindIcon = () => (<svg className="w-12 h-12" fill="none" viewBox="0 0 54 33"><g clipPath="url(#prefix__clip0)"><path fill="#38bdf8" fillRule="evenodd" d="M27 0c-7.2 0-11.7 3.6-13.5 10.8 2.7-3.6 5.85-4.95 9.45-4.05 2.054.513 3.522 2.004 5.147 3.653C30.744 13.09 33.808 16.2 40.5 16.2c7.2 0 11.7-3.6 13.5-10.8-2.7 3.6-5.85 4.95-9.45 4.05-2.054-.513-3.522-2.004-5.147-3.653C36.756 3.11 33.692 0 27 0zM13.5 16.2C6.3 16.2 1.8 19.8 0 27c2.7-3.6 5.85-4.95 9.45-4.05 2.054.513 3.522 2.004 5.147 3.653C17.244 29.29 20.308 32.4 27 32.4c7.2 0 11.7-3.6 13.5-10.8-2.7 3.6-5.85 4.95-9.45 4.05-2.054-.513-3.522-2.004-5.147-3.653C23.256 19.31 20.192 16.2 13.5 16.2z" clipRule="evenodd"></path></g><defs><clipPath id="prefix__clip0"><path fill="#fff" d="M0 0h54v32.4H0z"></path></clipPath></defs></svg>);
 
 // --- MOCK DATA ---
-const projects = [{title: "SaaS Dashboard", description: "A comprehensive dashboard for a SaaS product featuring analytics, user management, and reporting, built with React and a Node.js backend.", image: "https://placehold.co/600x400/0f172a/94a3b8?text=SaaS+Dashboard", liveUrl: "#", githubUrl: "#"}, {title: "Bistro Gourmet", description: "An elegant website for a high-end restaurant with online reservations, menu display, and a gallery. Focused on a premium user experience.", image: "../restaurant.png", liveUrl: "#", githubUrl: "#"}, {title: "TechFlow Pro", description: "A high-converting business landing page designed to capture leads, featuring a modern design, smooth animations, and a contact form.", image: "../techFlow.png", liveUrl: "#", githubUrl: "#"}, {title: "E-Commerce Store", description: "A full-featured e-commerce platform with product listings, a shopping cart, and a secure checkout process using the MERN stack.", image: "https://placehold.co/600x400/0f172a/94a3b8?text=E-Commerce", liveUrl: "#", githubUrl: "#"}];
+const projects = [{title: "SaaS Dashboard", description: "A comprehensive dashboard for a SaaS product featuring analytics, user management, and reporting, built with React and a Node.js backend.", image: "https://placehold.co/600x400/0f172a/94a3b8?text=SaaS+Dashboard", liveUrl: "#", githubUrl: "#"}, {title: "Bistro Gourmet", description: "An elegant website for a high-end restaurant with online reservations, menu display, and a gallery. Focused on a premium user experience.", image: restaurant, liveUrl: "#", githubUrl: "#"}, {title: "TechFlow Pro", description: "A high-converting business landing page designed to capture leads, featuring a modern design, smooth animations, and a contact form.", image: techFlow, liveUrl: "#", githubUrl: "#"}, {title: "Gym", description: "A full-featured GYM website with pricing listings, BMI calculator, Map and contact form, using the MERN stack.", image: gym, liveUrl: "https://anujaga2005.github.io/fitzone/", githubUrl: "#"}];
 const skills = [{name: "React", icon: <ReactIcon />}, {name: "Node.js", icon: <NodeIcon />}, {name: "Express", icon: <ExpressIcon />}, {name: "MongoDB", icon: <MongoIcon />}, {name: "Tailwind CSS", icon: <TailwindIcon />}];
 const testimonials = [{quote: "Working with them was a game-changer. Our new SaaS dashboard is not only beautiful but also incredibly fast and intuitive. The project was delivered on time and exceeded all our expectations.", name: "Jane Doe", title: "CEO of TechCorp"}, {quote: "The new website for our restaurant has received rave reviews from our customers. The online reservation system is seamless, and the design truly captures the essence of our brand. Highly recommended!", name: "John Smith", title: "Owner of Bistro Gourmet"}, {quote: "Our leads have increased by 40% since launching the new landing page. The attention to detail and focus on conversion was evident from day one. An absolute pleasure to work with.", name: "Sarah Lee", title: "Marketing Director at Innovate Ltd."}];
 
@@ -273,7 +277,7 @@ function HeroSection({ isDarkMode }) {
                         <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
                              <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-blue-500 rounded-full blur-2xl opacity-50 dark:opacity-30 animate-pulse"></div>
                              <img
-                                src="../profilePic.jpg"
+                                src={profilePic}
                                 alt="Anuj Agarwal's Profile Picture"
                                 className="relative w-full h-full object-cover rounded-full ring-4 ring-white/50 dark:ring-slate-700/50 shadow-2xl"
                             />
