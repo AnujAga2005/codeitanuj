@@ -241,7 +241,7 @@ function HeroSection({ isDarkMode }) {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
-                            className="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight tracking-tighter mb-6 ml-5"
+                            className="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight tracking-tighter mb-6 mx-auto"
                         >
                             Freelance Developer Building Modern Web Experiences.
                         </motion.h1>
@@ -249,7 +249,7 @@ function HeroSection({ isDarkMode }) {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.4 }}
-                            className="max-w-xl ml-5   text-lg md:text-xl text-slate-600 dark:text-slate-300 mb-10 "
+                            className="max-w-xl text-lg md:text-xl text-slate-600 dark:text-slate-300 mb-10 "
                         >
                             I specialize in creating fast, responsive, and beautiful websites for SaaS companies, restaurants, and businesses that need a powerful online presence.
                         </motion.p>
@@ -257,7 +257,7 @@ function HeroSection({ isDarkMode }) {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.6 }}
-                            className="flex justify-center md:justify-start gap-4 ml-5"
+                            className="flex justify-center md:justify-start gap-4 mx-auto"
                         >
                             <a href="#projects" className="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-sky-500/50 transform hover:scale-105">
                                 View My Work
