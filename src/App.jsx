@@ -32,7 +32,7 @@ const CatSprite = ({ isMoving }) => {
     <div className="relative h-10 w-12">
       <img
         key={imageKey} // This is the magic trick to "pause" the GIF
-        src="../assets/cat.gif" 
+        src="./cat.gif" 
         alt="Animated Cat"
         className="w-full h-full object-contain"
         // Style to prevent the browser from trying to animate the paused GIF
@@ -327,7 +327,7 @@ const Projects = () => {
       description: "Full-stack MERN e-commerce with payment integration",
       fullDescription: "A comprehensive e-commerce solution built with the MERN stack, featuring user authentication, product management, shopping cart functionality, and Stripe payment integration.",
       challenges: "Implementing secure payment processing and optimizing database queries for large product catalogs. Solved by using Stripe's secure APIs and implementing efficient indexing strategies.",
-      image: "../assets/gym.png",
+      image: "/gym.png",
       techStack: ["React", "Node.js", "MongoDB", "Express", "Stripe"],
       github: "https://github.com",
       live: "https://example.com"
@@ -338,7 +338,7 @@ const Projects = () => {
       description: "Smart task management with AI-powered suggestions",
       fullDescription: "An intelligent task management application that uses machine learning to suggest task priorities, estimate completion times, and provide productivity insights.",
       challenges: "Integrating AI models with real-time user data while maintaining performance. Implemented edge caching and background workers for ML inference.",
-      image: "../assets/gym.png",
+      image: "/gym.png",
       techStack: ["Next.js", "Python", "TensorFlow", "PostgreSQL", "Redis"],
       github: "https://github.com",
       live: "https://example.com"
@@ -349,7 +349,7 @@ const Projects = () => {
       description: "WebSocket-based chat with video calling features",
       fullDescription: "A modern chat application supporting real-time messaging, video calls, file sharing, and group conversations with end-to-end encryption.",
       challenges: "Handling WebRTC connections across different network configurations. Implemented TURN/STUN servers and fallback mechanisms.",
-      image: "../assets/gym.png",
+      image: "/gym.png",
       techStack: ["React", "Socket.io", "WebRTC", "Node.js", "Redis"],
       github: "https://github.com",
       live: "https://example.com"
