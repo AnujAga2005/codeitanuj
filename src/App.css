@@ -1,3 +1,10 @@
+#root {
+  /* This resets the properties that break "position: fixed" */
+  transform: none !important;
+  filter: none !important;
+  perspective: none !important;
+}
+
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 

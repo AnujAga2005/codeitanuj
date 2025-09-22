@@ -72,8 +72,8 @@ const Navbar = () => {
   return (
     <motion.nav 
       id="main-nav" 
-      // Added `relative` for correct dropdown positioning
-      className="fixed top-0 w-full z-50 backdrop-blur-lg bg-white/5 dark:bg-black/5 border-b border-gray-300/20 dark:border-white/10 relative"
+      // FIX 2: Removed the conflicting "relative" class to make "fixed" work correctly.
+      className="fixed top-0 w-full z-50 backdrop-blur-lg bg-white/5 dark:bg-black/5 border-b border-gray-300/20 dark:border-white/10"
     >
       {/* Removed the inner 'container' div for a simpler layout */}
       <div className="flex justify-between items-center h-16 px-4 md:px-8 max-w-7xl mx-auto">
@@ -1003,7 +1003,8 @@ const Footer = () => {
 const App = () => {
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-slate-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 selection:bg-cyan-300 selection:text-cyan-900">
+      {/* FIX 1: Added "overflow-x-hidden" to the main container to prevent horizontal scrollbars on mobile. */}
+      <div className="min-h-screen bg-slate-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 selection:bg-cyan-300 selection:text-cyan-900 overflow-x-hidden">
         <ParticlesBackground />
         <Navbar />
         <main>
