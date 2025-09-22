@@ -1,2 +1,27 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+.cat-sprite {
+  width: 48px;
+  height: 40px;
+  background-image: url('/cat-sprite.png');
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  animation: cat-walk 0.5s steps(6) infinite;
+  /* Animation is paused by default */
+  animation-play-state: paused;
+}
+
+.cat-running {
+  /* This class makes the animation run */
+  animation-play-state: running;
+}
+
+@keyframes cat-walk {
+  from { background-position: 0 0; }
+  to { background-position: -288px 0; }
+}
+
+.code-wrap {
+  white-space: pre-wrap;    /* Preserves whitespace but wraps text */
+  word-break: break-word; /* Breaks long words to prevent overflow */
+}

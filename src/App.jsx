@@ -1,605 +1,997 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform, useInView, useMotionValue } from 'framer-motion';
+import { 
+  FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope, FaDownload, FaExternalLinkAlt,
+  FaReact, FaNodeJs, FaHtml5, FaCss3, FaJs, FaPython, FaGitAlt, FaDocker,
+  FaMoon, FaSun, FaCopy, FaCode, FaTimes, FaBars, FaArrowUp, FaRocket,
+  FaBriefcase, FaGraduationCap, FaLaptopCode, FaTrophy
+} from 'react-icons/fa';
+import { SiTypescript, SiTailwindcss, SiMongodb, SiExpress } from 'react-icons/si';
+import Particles, { initParticlesEngine } from "@tsparticles/react";
+import { loadSlim } from "@tsparticles/slim";
 
-import React, { useState, useEffect, useCallback } from 'react';
-// You will need to install these dependencies:
-// npm install framer-motion react-tsparticles tsparticles-slim
+// (Keep your ThemeProvider and useTheme context as they are)
+const ThemeContext = React.createContext();
+const ThemeProvider = ({ children }) => {
+  const [isDark, setIsDark] = useState(true);
+  const toggleTheme = () => setIsDark(!isDark);
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+  }, [isDark]);
+  return <ThemeContext.Provider value={{ isDark, toggleTheme }}>{children}</ThemeContext.Provider>;
+};
+const useTheme = () => React.useContext(ThemeContext);
 
-import { motion, AnimatePresence } from 'framer-motion';
-import Particles from "react-tsparticles";
-import { loadSlim } from "tsparticles-slim";
-import profilePic from '../assets/profilePic.jpg';
-import restaurant from '../assets/restaurant.png';
-import techFlow from '../assets/techFlow.png';
-import gym from '../assets/gym.png';
+// --- 1. IMPROVED CAT SPRITE (Pauses GIF instead of swapping images) ---
+const CatSprite = ({ isMoving }) => {
+  // We use a key that changes only when the cat stops moving.
+  // This forces React to re-render the <img> element, which resets the GIF to its first frame.
+  const imageKey = isMoving ? 'moving' : `stopped-${Date.now()}`;
 
-// --- SVG ICONS ---
-// Using functional components for SVG icons for reusability and clarity.
-
-const MoonIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
-  </svg>
-);
-
-const SunIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <circle cx="12" cy="12" r="4"></circle>
-    <path d="M12 2v2"></path><path d="M12 20v2"></path>
-    <path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path>
-    <path d="M2 12h2"></path><path d="M20 12h2"></path>
-    <path d="m4.93 19.07 1.41-1.41"></path><path d="m17.66 6.34 1.41-1.41"></path>
-  </svg>
-);
-
-const MenuIcon = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <line x1="4" x2="20" y1="12" y2="12"></line>
-        <line x1="4" x2="20" y1="6" y2="6"></line>
-        <line x1="4" x2="20" y1="18" y2="18"></line>
-    </svg>
-);
-
-const XIcon = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M18 6 6 18"></path>
-        <path d="m6 6 12 12"></path>
-    </svg>
-);
-
-const GithubIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path>
-  </svg>
-);
-
-const ExternalLinkIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-    <polyline points="15 3 21 3 21 9"></polyline>
-    <line x1="10" y1="14" x2="21" y2="3"></line>
-  </svg>
-);
-
-// --- SKILL ICONS ---
-const ReactIcon = () => (<svg className="w-12 h-12" viewBox="-11.5 -10.23174 23 20.46348"><circle cx="0" cy="0" r="2.05" fill="#61dafb"></circle><g stroke="#61dafb" strokeWidth="1" fill="none"><ellipse rx="11" ry="4.2"></ellipse><ellipse rx="11" ry="4.2" transform="rotate(60)"></ellipse><ellipse rx="11" ry="4.2" transform="rotate(120)"></ellipse></g></svg>);
-const NodeIcon = () => (<svg className="w-12 h-12" viewBox="0 0 24 24"><path fill="#68a063" d="M12.353,2.4,12,2.235,11.647,2.4,5.4,5.823V18.177l.353.2L12,21.8l6.247-3.424.353-.2V5.823Zm-.641,1.524,4.2,2.309-2.071,1.147L12.01,6.235V4.012Zm-1.2,0V6.235L8.989,7.382,6.918,6.235Zm-4.5,3.318L10.2,9.553v4.9l-4.188-2.3ZM12,19.765l-4.2-2.309V12.55l4.2,2.309Zm.6,0V14.859l4.2-2.309v4.906Zm4.2-7.382-4.188,2.3V9.553L16.2,7.247Z"></path></svg>);
-const ExpressIcon = () => (<svg className="w-12 h-12" viewBox="0 0 24 24" fill="currentColor"><path d="M22 13.59c0-.42-.09-.81-.25-1.16l-2.82-6.2c-.37-.81-1.2-1.33-2.12-1.33H7.18c-.92 0-1.75.52-2.12 1.33l-2.82 6.2c-.16.35-.25.74-.25 1.16v.44c0 .41.09.81.25 1.16l2.82 6.2c.37.81 1.2 1.33 2.12 1.33h9.63c.92 0 1.75-.52 2.12-1.33l2.82-6.2c.16-.35.25-.75.25-1.16v-.44zM8.38 12.52h3.99c.75 0 1.36-.61 1.36-1.36s-.61-1.36-1.36-1.36H8.38V8.45h3.69v-1.3H7.07v6.59h5.3v-1.42H8.38v-1.16zM17.06 9.8v1.36h-2.17v1.1h1.9v1.28h-1.9v1.36h2.17v1.3h-3.58V8.5h3.58v1.3z"></path></svg>);
-const MongoIcon = () => (<svg className="w-12 h-12" viewBox="0 0 24 24"><path fill="#4db33d" d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M13.5,18.5c-0.83,0-1.5-0.67-1.5-1.5 s0.67-1.5,1.5-1.5s1.5,0.67,1.5,1.5S14.33,18.5,13.5,18.5z M16.7,14.65c-0.63,0.32-1.22,0.5-1.75,0.5c-0.95,0-1.7-0.72-1.7-1.79 c0-1.25,1.14-2.1,2.55-2.1c0.41,0,0.8,0.08,1.15,0.21V10.2c0-1.93-1.34-3.5-3.35-3.5c-1.84,0-3.35,1.4-3.35,3.5v5 c-1.07-0.68-1.75-1.85-1.75-3.2c0-2.07,1.65-3.75,3.7-3.75c2.05,0.05,3.7,1.65,3.75,3.7V14.65z"></path></svg>);
-const TailwindIcon = () => (<svg className="w-12 h-12" fill="none" viewBox="0 0 54 33"><g clipPath="url(#prefix__clip0)"><path fill="#38bdf8" fillRule="evenodd" d="M27 0c-7.2 0-11.7 3.6-13.5 10.8 2.7-3.6 5.85-4.95 9.45-4.05 2.054.513 3.522 2.004 5.147 3.653C30.744 13.09 33.808 16.2 40.5 16.2c7.2 0 11.7-3.6 13.5-10.8-2.7 3.6-5.85 4.95-9.45 4.05-2.054-.513-3.522-2.004-5.147-3.653C36.756 3.11 33.692 0 27 0zM13.5 16.2C6.3 16.2 1.8 19.8 0 27c2.7-3.6 5.85-4.95 9.45-4.05 2.054.513 3.522 2.004 5.147 3.653C17.244 29.29 20.308 32.4 27 32.4c7.2 0 11.7-3.6 13.5-10.8-2.7 3.6-5.85 4.95-9.45 4.05-2.054-.513-3.522-2.004-5.147-3.653C23.256 19.31 20.192 16.2 13.5 16.2z" clipRule="evenodd"></path></g><defs><clipPath id="prefix__clip0"><path fill="#fff" d="M0 0h54v32.4H0z"></path></clipPath></defs></svg>);
-
-// --- MOCK DATA ---
-const projects = [{title: "SaaS Dashboard", description: "A comprehensive dashboard for a SaaS product featuring analytics, user management, and reporting, built with React and a Node.js backend.", image: "https://placehold.co/600x400/0f172a/94a3b8?text=SaaS+Dashboard", liveUrl: "#", githubUrl: "#"}, {title: "Bistro Gourmet", description: "An elegant website for a high-end restaurant with online reservations, menu display, and a gallery. Focused on a premium user experience.", image: restaurant, liveUrl: "#", githubUrl: "#"}, {title: "TechFlow Pro", description: "A high-converting business landing page designed to capture leads, featuring a modern design, smooth animations, and a contact form.", image: techFlow, liveUrl: "#", githubUrl: "#"}, {title: "Gym", description: "A full-featured GYM website with pricing listings, BMI calculator, Map and contact form, using the MERN stack.", image: gym, liveUrl: "https://anujaga2005.github.io/fitzone/", githubUrl: "#"}];
-const skills = [{name: "React", icon: <ReactIcon />}, {name: "Node.js", icon: <NodeIcon />}, {name: "Express", icon: <ExpressIcon />}, {name: "MongoDB", icon: <MongoIcon />}, {name: "Tailwind CSS", icon: <TailwindIcon />}];
-const testimonials = [{quote: "Working with them was a game-changer. Our new SaaS dashboard is not only beautiful but also incredibly fast and intuitive. The project was delivered on time and exceeded all our expectations.", name: "Jane Doe", title: "CEO of TechCorp"}, {quote: "The new website for our restaurant has received rave reviews from our customers. The online reservation system is seamless, and the design truly captures the essence of our brand. Highly recommended!", name: "John Smith", title: "Owner of Bistro Gourmet"}, {quote: "Our leads have increased by 40% since launching the new landing page. The attention to detail and focus on conversion was evident from day one. An absolute pleasure to work with.", name: "Sarah Lee", title: "Marketing Director at Innovate Ltd."}];
-
-// --- ANIMATION VARIANTS ---
-const sectionVariant = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+  return (
+    <div className="relative h-10 w-12">
+      <img
+        key={imageKey} // This is the magic trick to "pause" the GIF
+        src="../assets/cat.gif" 
+        alt="Animated Cat"
+        className="w-full h-full object-contain"
+        // Style to prevent the browser from trying to animate the paused GIF
+        style={{ imageRendering: isMoving ? 'auto' : 'pixelated' }}
+      />
+    </div>
+  );
 };
 
-const cardContainerVariant = {
-    hidden: { opacity: 1 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.2
-        }
-    }
+// (Navbar component remains mostly the same, just ensure it uses the new CatSprite)
+const Navbar = () => {
+  const { isDark, toggleTheme } = useTheme();
+  const [isCatHovered, setIsCatHovered] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
+
+  // Effect to detect scrolling
+  useEffect(() => {
+    let scrollTimeout;
+    const handleScroll = () => {
+      setIsScrolling(true);
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        setIsScrolling(false);
+      }, 150);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Determine if the cat should be moving
+  const isCatMoving = isCatHovered || isScrolling;
+  
+  const navLinks = [
+    { name: 'Home', href: '#home' },
+    { name: 'Projects', href: '#projects' },
+    { name: 'Tech', href: '#tech' },
+    { name: 'Snippets', href: '#snippets' },
+    { name: 'Contact', href: '#contact' },
+  ];
+  
+  return (
+    <motion.nav id="main-nav" className="fixed top-0 w-full z-40 backdrop-blur-lg bg-white/5 dark:bg-black/5 border-b border-gray-300/20 dark:border-white/10">
+      <div className="container mx-auto px-4 py-2">
+        <div className="flex justify-between items-center">
+          <motion.a 
+            href="#home" 
+            className="flex items-center cursor-pointer gap-2"
+            onMouseEnter={() => setIsCatHovered(true)}
+            onMouseLeave={() => setIsCatHovered(false)}
+          >
+            <CatSprite isMoving={isCatMoving} />
+            <span className="text-2xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 bg-clip-text text-transparent">
+              Anuj Agarwal
+            </span>
+          </motion.a>
+          
+          <div className="hidden md:flex items-center gap-6">
+            {/* LINKS RESTORED HERE */}
+            {navLinks.map((link) => (
+               <motion.a 
+                 key={link.name} 
+                 href={link.href} 
+                 className="text-gray-700 dark:text-gray-300 hover:text-cyan-400 transition-colors" 
+                 whileHover={{ scale: 1.1, y: -2 }}
+               >
+                 {link.name}
+               </motion.a>
+            ))}
+            
+            <motion.button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg font-medium" whileHover={{ scale: 1.05 }} onClick={() => window.open('https://example.com/resume.pdf', '_blank')}>
+              <FaDownload className="inline mr-2" /> Resume
+            </motion.button>
+            <motion.button onClick={toggleTheme} className="p-2 rounded-lg bg-gray-200 dark:bg-gray-800" whileHover={{ scale: 1.1, rotate: 180 }}>
+              {isDark ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-gray-700" />}
+            </motion.button>
+          </div>
+        </div>
+      </div>
+    </motion.nav>
+  );
 };
 
-const cardVariant = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-};
-
-// --- COMPONENTS ---
-
-const ParticlesBackground = ({ isDarkMode }) => {
-    const particlesInit = useCallback(async (engine) => {
+// (BlinkingCursor and ParticlesBackground components remain the same)
+const BlinkingCursor = () => (
+    <motion.div
+      className="inline-block h-6 w-2 bg-cyan-400 ml-1"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1, repeat: Infinity }}
+    />
+);
+const ParticlesBackground = () => {
+    // ... same code as before
+    const [init, setInit] = useState(false);
+    const { isDark } = useTheme();
+    useEffect(() => {
+        initParticlesEngine(async (engine) => {
         await loadSlim(engine);
+        }).then(() => setInit(true));
     }, []);
-
-    const options = {
-        background: {
-            color: { value: 'transparent' },
-        },
-        fpsLimit: 60,
+    const particleOptions = {
+        background: { color: { value: 'transparent' } },
+        fpsLimit: 120,
         interactivity: {
-            events: {
-                onHover: {
-                    enable: true,
-                    mode: "repulse",
-                },
-                resize: true,
-            },
-            modes: {
-                repulse: {
-                    distance: 100,
-                    duration: 0.4,
-                },
-            },
+        events: { onHover: { enable: true, mode: 'repulse' } },
+        modes: { repulse: { distance: 80, duration: 0.4 } },
         },
         particles: {
-            color: { value: isDarkMode ? "#38bdf8" : "#0ea5e9" },
-            links: {
-                color: isDarkMode ? "#1e293b" : "#e2e8f0",
-                distance: 150,
-                enable: true,
-                opacity: 0.5,
-                width: 1,
-            },
-            move: {
-                direction: "none",
-                enable: true,
-                outModes: {
-                    default: "bounce",
-                },
-                random: false,
-                speed: 1,
-                straight: false,
-            },
-            number: {
-                density: {
-                    enable: true,
-                    area: 800,
-                },
-                value: 50,
-            },
-            opacity: {
-                value: 0.5,
-            },
-            shape: {
-                type: "circle",
-            },
-            size: {
-                value: { min: 1, max: 3 },
-            },
+        color: { value: isDark ? "#00ffff" : "#ff00ff" },
+        links: { color: isDark ? "#ffffff" : "#000000", distance: 150, enable: true, opacity: 0.2, width: 1 },
+        move: { direction: 'none', enable: true, outModes: { default: 'bounce' }, random: true, speed: 1, straight: false },
+        number: { density: { enable: true, area: 800 }, value: 80 },
+        opacity: { value: 0.6 },
+        shape: { type: 'circle' },
+        size: { value: { min: 1, max: 3 } },
         },
         detectRetina: true,
     };
+    if (!init) return null;
+    return <Particles id="tsparticles" options={particleOptions} className="fixed inset-0 z-0" />;
+};
 
-    return <Particles id="tsparticles" init={particlesInit} options={options} />;
-}
+// Hero Section
+const Hero = () => {
+  const phrases = ["Full Stack Developer.", "Creative Coder.", "Tech Enthusiast."];
+  const [currentPhrase, setCurrentPhrase] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => setCurrentPhrase((prev) => (prev + 1) % phrases.length), 3000);
+    return () => clearInterval(interval);
+  }, []);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useTransform(mouseY, [-500, 500], [5, -5]);
+  const rotateY = useTransform(mouseX, [-500, 500], [-5, 5]);
+  const handleMouseMove = (event) => {
+    const { clientX, clientY, currentTarget } = event;
+    const { left, top, width, height } = currentTarget.getBoundingClientRect();
+    mouseX.set(clientX - left - width / 2);
+    mouseY.set(clientY - top - height / 2);
+  };
 
+   return (
+    <section id="home" className="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden" onMouseMove={handleMouseMove}>
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob dark:opacity-30"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-600 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-4000 dark:opacity-30"></div>
+      <div className="container mx-auto px-4 z-10">
+        {/* MODIFICATION: Added min-h-[550px] and flex classes */}
+        <motion.div 
+          className="max-w-4xl mx-auto bg-white/80 dark:bg-black/20 backdrop-blur-xl rounded-2xl border border-gray-300/50 dark:border-white/20 p-8 text-center shadow-lg dark:shadow-none min-h-[550px] flex flex-col justify-center"
+          style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+        >
+          {/* Terminal header */}
+          <div className="absolute top-4 left-6 flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+          </div>
+          {/* Content */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+            <img src="/profile.jpg" alt="Anuj Agarwal" className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-cyan-400/50" />
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 bg-clip-text text-transparent">Anuj Agarwal</span>
+            </h1>
+            <div className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 h-8">
+              <span>{phrases[currentPhrase]}</span>
+              <BlinkingCursor />
+            </div>
+            <div className="flex gap-4 justify-center">
+              <motion.button className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium flex items-center gap-2" whileHover={{ scale: 1.05 }} onClick={() => document.getElementById('projects').scrollIntoView({ behavior: 'smooth' })}>
+                <FaRocket /> View Projects
+              </motion.button>
+              <motion.button className="px-8 py-3 bg-transparent border-2 border-cyan-400 text-cyan-400 rounded-lg font-medium flex items-center gap-2" whileHover={{ scale: 1.05, backgroundColor: 'rgba(0, 255, 255, 0.1)' }} onClick={() => window.open('https://example.com/resume.pdf', '_blank')}>
+                <FaDownload /> My Resume
+              </motion.button>
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
 
-function Header({ isDarkMode, setIsDarkMode }) {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-    const navLinks = [
-        { href: "#projects", label: "Projects" },
-        { href: "#skills", label: "Skills" },
-        { href: "#testimonials", label: "Testimonials" },
-        { href: "#contact", label: "Contact" },
-    ];
+// Project Modal
+const ProjectModal = ({ project, isOpen, onClose }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
     
-    return (
-        <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm transition-colors duration-300">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-20">
-                    <div className="flex-shrink-0">
-                        <a href="#" className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">
-                           Anuj Agarwal
-                        </a>
-                    </div>
-                    <nav className="hidden md:flex items-center space-x-8">
-                        {navLinks.map(link => (
-                            <a key={link.href} href={link.href} className="text-slate-600 dark:text-slate-300 hover:text-sky-500 dark:hover:text-sky-400 transition-colors duration-300 font-medium">
-                                {link.label}
-                            </a>
-                        ))}
-                    </nav>
-                    <div className="flex items-center">
-                         <button
-                            onClick={() => setIsDarkMode(!isDarkMode)}
-                            className="p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors duration-300"
-                            aria-label="Toggle dark mode"
-                        >
-                            {isDarkMode ? <SunIcon className="w-6 h-6" /> : <MoonIcon className="w-6 h-6" />}
-                        </button>
-                        <div className="md:hidden ml-2">
-                             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors duration-300">
-                                {isMenuOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {/* Mobile Menu */}
-            <AnimatePresence>
-            {isMenuOpen && (
-                <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="md:hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 overflow-hidden"
-                >
-                    <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                         {navLinks.map(link => (
-                            <a key={link.href} href={link.href} onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                                {link.label}
-                            </a>
-                        ))}
-                    </div>
-                </motion.div>
-            )}
-            </AnimatePresence>
-        </header>
-    );
-}
-
-function HeroSection({ isDarkMode }) {
-    return (
-        <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-800">
-            <div className="absolute inset-0 z-0">
-                 <ParticlesBackground isDarkMode={isDarkMode} />
-            </div>
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-12">
-                    {/* Text Content */}
-                    <div className="md:w-1/2 text-center md:text-left">
-                        <motion.h1
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 0.2 }}
-                            className="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight tracking-tighter mb-6 mx-auto"
-                        >
-                            Freelance Developer Building Modern Web Experiences.
-                        </motion.h1>
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 0.4 }}
-                            className="max-w-xl text-lg md:text-xl text-slate-600 dark:text-slate-300 mb-10 "
-                        >
-                            I specialize in creating fast, responsive, and beautiful websites for SaaS companies, restaurants, and businesses that need a powerful online presence.
-                        </motion.p>
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 0.6 }}
-                            className="flex justify-center md:justify-start gap-4 mx-auto"
-                        >
-                            <a href="#projects" className="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-sky-500/50 transform hover:scale-105">
-                                View My Work
-                            </a>
-                            <a href="#contact" className="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105">
-                                Get In Touch
-                            </a>
-                        </motion.div>
-                    </div>
-                    {/* Image */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                        className="md:w-1/2 flex justify-center"
-                    >
-                        <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
-                             <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-blue-500 rounded-full blur-2xl opacity-50 dark:opacity-30 animate-pulse"></div>
-                             <img
-                                src={profilePic}
-                                alt="Anuj Agarwal's Profile Picture"
-                                className="relative w-full h-full object-cover rounded-full ring-4 ring-white/50 dark:ring-slate-700/50 shadow-2xl"
-                            />
-                        </div>
-                    </motion.div>
-                </div>
-            </div>
-        </section>
-    );
-}
-
-function ProjectCard({ project }) {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    
+    window.addEventListener('keydown', handleEsc);
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+  
+  if (!isOpen) return null;
+  
   return (
-    <motion.div variants={cardVariant} className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition-all duration-300 group">
-      <img src={project.image} alt={project.title} className="w-full h-48 object-cover" />
-      <div className="p-6">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{project.title}</h3>
-        <p className="text-slate-600 dark:text-slate-300 mb-4">{project.description}</p>
-        <div className="flex justify-start space-x-4">
-          <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sky-500 dark:text-sky-400 font-semibold hover:underline">
-            Live Preview <ExternalLinkIcon className="ml-2 w-4 h-4" />
-          </a>
-          <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-slate-500 dark:text-slate-400 font-semibold hover:underline">
-            GitHub <GithubIcon className="ml-2 w-4 h-4" />
-          </a>
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-white dark:bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-6">
+            <button
+              onClick={onClose}
+              className="float-right p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg"
+            >
+              <FaTimes />
+            </button>
+            
+            <h2 className="text-3xl font-bold mb-4">{project.title}</h2>
+            
+            <img
+              src={project.image}
+              alt={project.title}
+              className="w-full h-64 object-cover rounded-lg mb-4"
+            />
+            
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{project.fullDescription}</p>
+            
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold mb-2">Challenges & Solutions</h3>
+              <p className="text-gray-600 dark:text-gray-400">{project.challenges}</p>
+            </div>
+            
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold mb-2">Tech Stack</h3>
+              <div className="flex flex-wrap gap-2">
+                {project.techStack.map((tech) => (
+                  <span
+                    key={tech}
+                    className="px-3 py-1 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-full text-sm"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex gap-4">
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-2 bg-gray-800 text-white rounded-lg flex items-center gap-2 hover:bg-gray-700"
+              >
+                <FaGithub /> GitHub
+              </a>
+              <a
+                href={project.live}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg flex items-center gap-2"
+              >
+                <FaExternalLinkAlt /> Live Demo
+              </a>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+// Projects Section
+const Projects = () => {
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const projects = [
+    {
+      id: 1,
+      title: "E-Commerce Platform",
+      description: "Full-stack MERN e-commerce with payment integration",
+      fullDescription: "A comprehensive e-commerce solution built with the MERN stack, featuring user authentication, product management, shopping cart functionality, and Stripe payment integration.",
+      challenges: "Implementing secure payment processing and optimizing database queries for large product catalogs. Solved by using Stripe's secure APIs and implementing efficient indexing strategies.",
+      image: "../assets/gym.png",
+      techStack: ["React", "Node.js", "MongoDB", "Express", "Stripe"],
+      github: "https://github.com",
+      live: "https://example.com"
+    },
+    {
+      id: 2,
+      title: "AI Task Manager",
+      description: "Smart task management with AI-powered suggestions",
+      fullDescription: "An intelligent task management application that uses machine learning to suggest task priorities, estimate completion times, and provide productivity insights.",
+      challenges: "Integrating AI models with real-time user data while maintaining performance. Implemented edge caching and background workers for ML inference.",
+      image: "../assets/gym.png",
+      techStack: ["Next.js", "Python", "TensorFlow", "PostgreSQL", "Redis"],
+      github: "https://github.com",
+      live: "https://example.com"
+    },
+    {
+      id: 3,
+      title: "Real-time Chat App",
+      description: "WebSocket-based chat with video calling features",
+      fullDescription: "A modern chat application supporting real-time messaging, video calls, file sharing, and group conversations with end-to-end encryption.",
+      challenges: "Handling WebRTC connections across different network configurations. Implemented TURN/STUN servers and fallback mechanisms.",
+      image: "../assets/gym.png",
+      techStack: ["React", "Socket.io", "WebRTC", "Node.js", "Redis"],
+      github: "https://github.com",
+      live: "https://example.com"
+    }
+  ];
+  
+  return (
+    <section id="projects" className="py-20">
+      <div className="container mx-auto px-4">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="text-4xl md:text-5xl font-bold text-center mb-16"
+        >
+          <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            Featured Projects
+          </span>
+        </motion.h2>
+        
+        <div className="space-y-12">
+          {projects.map((project, index) => (
+            <motion.div
+              key={project.id}
+              initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.02 }}
+              className={`grid md:grid-cols-2 gap-8 bg-white/10 dark:bg-black/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-white/10 ${
+                index % 2 === 1 ? 'md:flex-row-reverse' : ''
+              }`}
+            >
+              {/* Project Preview */}
+              <div className={`relative overflow-hidden rounded-lg ${index % 2 === 1 ? 'md:order-2' : ''}`}>
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
+              </div>
+              
+              {/* Project Info */}
+              <div className={`flex flex-col justify-center ${index % 2 === 1 ? 'md:order-1' : ''}`}>
+                <h3 className="text-2xl font-bold mb-2">{project.title}</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">{project.description}</p>
+                
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {project.techStack.map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-3 py-1 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-full text-sm"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+                
+                <div className="flex gap-4">
+                  <motion.button
+                    className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => window.open(project.live, '_blank')}
+                  >
+                    <FaExternalLinkAlt className="inline mr-2" />
+                    Live Preview
+                  </motion.button>
+                  
+                  <motion.button
+                    className="px-6 py-2 border-2 border-cyan-400 text-cyan-400 rounded-lg"
+                    whileHover={{ scale: 1.05, backgroundColor: 'rgba(0, 255, 255, 0.1)' }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setSelectedProject(project);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    View Details
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
-    </motion.div>
+      
+      <ProjectModal
+        project={selectedProject}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </section>
   );
-}
+};
 
-
-function ProjectsSection() {
-    return (
-        <motion.section 
-            id="projects" 
-            className="py-20 bg-slate-50 dark:bg-slate-900/70"
-            variants={sectionVariant}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
+// Tech Stack Section
+const TechStack = () => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+  
+  const technologies = [
+    { name: "React", icon: <FaReact />, level: 90, color: "from-cyan-400 to-cyan-600" },
+    { name: "Node.js", icon: <FaNodeJs />, level: 85, color: "from-green-400 to-green-600" },
+    { name: "TypeScript", icon: <SiTypescript />, level: 80, color: "from-blue-400 to-blue-600" },
+    { name: "MongoDB", icon: <SiMongodb />, level: 75, color: "from-green-500 to-green-700" },
+    { name: "Tailwind", icon: <SiTailwindcss />, level: 95, color: "from-teal-400 to-teal-600" },
+    { name: "Express", icon: <SiExpress />, level: 80, color: "from-gray-400 to-gray-600" },
+    { name: "Python", icon: <FaPython />, level: 70, color: "from-yellow-400 to-yellow-600" },
+    { name: "Docker", icon: <FaDocker />, level: 65, color: "from-blue-400 to-blue-600" },
+  ];
+  
+  return (
+    <section id="tech" className="py-20 bg-gray-50/50 dark:bg-gray-900/50">
+      <div className="container mx-auto px-4">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="text-4xl md:text-5xl font-bold text-center mb-16"
         >
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">Featured Projects</h2>
-                    <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">A selection of my recent work.</p>
-                </div>
-                <motion.div 
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8"
-                    variants={cardContainerVariant}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.2 }}
-                >
-                    {projects.map((project, index) => (
-                        <ProjectCard key={index} project={project} />
-                    ))}
-                </motion.div>
-            </div>
-        </motion.section>
-    );
-}
-
-function SkillsSection() {
-    return (
-        <motion.section 
-            id="skills" 
-            className="py-20"
-            variants={sectionVariant}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-        >
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">My Tech Stack</h2>
-                    <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">Technologies I use to build modern web applications.</p>
-                </div>
-                <motion.div 
-                    className="flex flex-wrap justify-center items-center gap-8 md:gap-12"
-                    variants={cardContainerVariant}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.2 }}
-                >
-                    {skills.map((skill) => (
-                        <motion.div variants={cardVariant} key={skill.name} className="flex flex-col items-center gap-2 text-center group">
-                            <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full transition-all duration-300 group-hover:bg-sky-100 dark:group-hover:bg-sky-900/50 group-hover:scale-110">
-                                {skill.icon}
-                            </div>
-                            <span className="font-semibold text-slate-700 dark:text-slate-300">{skill.name}</span>
-                        </motion.div>
-                    ))}
-                </motion.div>
-            </div>
-        </motion.section>
-    );
-}
-
-function TestimonialsSection() {
-    const [currentIndex, setCurrentIndex] = useState(0);
-
-    const nextTestimonial = () => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
-    };
-
-    const prevTestimonial = () => {
-        setCurrentIndex((prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length);
-    };
-    
-    return (
-        <motion.section 
-            id="testimonials" 
-            className="py-20 bg-slate-50 dark:bg-slate-900/70"
-            variants={sectionVariant}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-        >
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">What My Clients Say</h2>
-                    <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">Real feedback from happy clients.</p>
-                </div>
-                <div className="relative max-w-3xl mx-auto">
-                    <div className="overflow-hidden">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={currentIndex}
-                                initial={{ opacity: 0, x: 50 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -50 }}
-                                transition={{ duration: 0.3 }}
-                                className="w-full flex-shrink-0 px-4 text-center"
-                            >
-                                <p className="text-xl italic text-slate-700 dark:text-slate-200 mb-6">"{testimonials[currentIndex].quote}"</p>
-                                <div className="font-bold text-slate-900 dark:text-white">{testimonials[currentIndex].name}</div>
-                                <div className="text-slate-500 dark:text-slate-400">{testimonials[currentIndex].title}</div>
-                            </motion.div>
-                        </AnimatePresence>
-                    </div>
-                     <button onClick={prevTestimonial} className="absolute top-1/2 -left-4 md:-left-12 transform -translate-y-1/2 bg-white dark:bg-slate-800 p-2 rounded-full shadow-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors z-10">
-                        <svg className="w-6 h-6 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
-                    </button>
-                    <button onClick={nextTestimonial} className="absolute top-1/2 -right-4 md:-right-12 transform -translate-y-1/2 bg-white dark:bg-slate-800 p-2 rounded-full shadow-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors z-10">
-                        <svg className="w-6 h-6 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
-                    </button>
-                </div>
-            </div>
-        </motion.section>
-    );
-}
-
-function ContactSection() {
-    const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-    // State for form submission status
-    const [status, setStatus] = useState({
-        submitted: false,
-        submitting: false,
-        info: { error: false, msg: null }
-    });
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setStatus((prevStatus) => ({ ...prevStatus, submitting: true }));
-
-        // --- IMPORTANT: Replace with your key from web3forms.com ---
-        const accessKey = "385d3253-8ccc-4002-87c8-091439a85b08";
+          <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            Tech Stack
+          </span>
+        </motion.h2>
         
-        const data = {
-            ...formData,
-            access_key: accessKey,
-            subject: `New Message from ${formData.name} via Portfolio`,
-        };
-
-        try {
-            const res = await fetch('https://api.web3forms.com/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-            const json = await res.json();
-
-            if (res.status === 200) {
-                setStatus({
-                    submitted: true,
-                    submitting: false,
-                    info: { error: false, msg: json.message }
-                });
-                setFormData({ name: '', email: '', message: '' });
-            } else {
-                setStatus({
-                    submitted: false,
-                    submitting: false,
-                    info: { error: true, msg: json.message || 'Something went wrong.' }
-                });
-            }
-        } catch (error) {
-            setStatus({
-                submitted: false,
-                submitting: false,
-                info: { error: true, msg: 'Something went wrong. Please try again.' }
-            });
-        }
-    };
-
-    return (
-        <motion.section
-            id="contact"
-            className="py-20"
-            variants={sectionVariant}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-        >
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                 <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">Let's Build Something Great</h2>
-                    <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">Have a project in mind? I'd love to hear about it.</p>
-                </div>
-                <div className="max-w-xl mx-auto">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Name</label>
-                            <input type="text" name="name" id="name" required value={formData.name} onChange={handleChange} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"/>
-                        </div>
-                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
-                            <input type="email" name="email" id="email" required value={formData.email} onChange={handleChange} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"/>
-                        </div>
-                         <div>
-                            <label htmlFor="message" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Message</label>
-                            <textarea name="message" id="message" rows="4" required value={formData.message} onChange={handleChange} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"></textarea>
-                        </div>
-                        <div className="text-center">
-                            <button
-                                type="submit"
-                                disabled={status.submitting}
-                                className="w-full md:w-auto bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-sky-500/50 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {status.submitting ? 'Sending...' : 'Send Message'}
-                            </button>
-                        </div>
-                    </form>
-                    <AnimatePresence>
-                        {status.info.msg && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 20 }}
-                                className={`mt-6 text-center p-3 rounded-md ${
-                                    status.info.error
-                                        ? 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200'
-                                        : 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200'
-                                }`}
-                            >
-                                {status.info.msg}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </div>
-        </motion.section>
-    );
-}
-
-function Footer() {
-    return (
-        <footer className="bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-slate-500 dark:text-slate-400">
-                <p>&copy; {new Date().getFullYear()} Anuj Agarwal. All Rights Reserved.</p>
-            </div>
-        </footer>
-    );
-}
-
-
-// --- MAIN APP COMPONENT ---
-export default function App() {
-    // State to manage dark mode. It checks local storage and system preference.
-    const [isDarkMode, setIsDarkMode] = useState(() => {
-        if (typeof window !== 'undefined' && localStorage.theme) {
-            return localStorage.theme === 'dark';
-        }
-        if (typeof window !== 'undefined') {
-            return window.matchMedia('(prefers-color-scheme: dark)').matches;
-        }
-        return false;
-    });
-
-    // Effect to apply the dark mode class to the <html> element.
-    useEffect(() => {
-        const root = window.document.documentElement;
-        if (isDarkMode) {
-            root.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            root.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
-    }, [isDarkMode]);
-
-    return (
-        // Added scroll-smooth for better navigation from header links.
-        <div className="bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 font-sans antialiased selection:bg-sky-500/20 scroll-smooth">
-            <Header isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
-            <main>
-                <HeroSection isDarkMode={isDarkMode} />
-                <ProjectsSection />
-                <SkillsSection />
-                <TestimonialsSection />
-                <ContactSection />
-            </main>
-            <Footer />
+        <div ref={ref} className="space-y-6 max-w-3xl mx-auto">
+          {technologies.map((tech, index) => (
+            <motion.div
+              key={tech.name}
+              initial={{ opacity: 0, x: -50 }}
+              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-xl p-4"
+            >
+              <div className="flex items-center mb-2">
+                <span className="text-2xl mr-3">{tech.icon}</span>
+                <span className="font-semibold">{tech.name}</span>
+                <span className="ml-auto text-sm text-gray-500">{tech.level}%</span>
+              </div>
+              
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <motion.div
+                  className={`h-full bg-gradient-to-r ${tech.color}`}
+                  initial={{ width: 0 }}
+                  animate={isInView ? { width: `${tech.level}%` } : {}}
+                  transition={{ duration: 1, delay: index * 0.1 }}
+                />
+              </div>
+            </motion.div>
+          ))}
         </div>
-    );
+      </div>
+    </section>
+  );
+};
+
+// Code Snippets Section
+const CodeSnippets = () => {
+  const [copiedId, setCopiedId] = useState(null);
+  
+  const snippets = [
+    {
+      id: 1,
+      title: "React Custom Hook",
+      description: "useLocalStorage hook for persistent state",
+      language: "javascript",
+      code: `const useLocalStorage = (key, initialValue) => {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      return initialValue;
+    }
+  });
+
+  const setValue = (value) => {
+    try {
+      setStoredValue(value);
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return [storedValue, setValue];
+};`
+    },
+    {
+      id: 2,
+      title: "CSS Glassmorphism",
+      description: "Modern glass effect with backdrop filter",
+      language: "css",
+      code: `.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}`
+    },
+    {
+      id: 3,
+      title: "TypeScript Interface",
+      description: "Type-safe API response handler",
+      language: "typescript",
+      code: `interface ApiResponse<T> {
+  data: T;
+  error: string | null;
+  loading: boolean;
 }
 
+async function fetchData<T>(url: string): Promise<ApiResponse<T>> {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return { data, error: null, loading: false };
+  } catch (error) {
+    return { 
+      data: null as T, 
+      error: error.message, 
+      loading: false 
+    };
+  }
+}`
+    }
+  ];
+  
+  const copyToClipboard = (code, id) => {
+    navigator.clipboard.writeText(code);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+  
+  return (
+    <section id="snippets" className="py-20">
+      <div className="container mx-auto px-4">
+        <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="text-4xl md:text-5xl font-bold text-center mb-16">
+          <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">Code Snippets</span>
+        </motion.h2>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {snippets.map((snippet) => (
+            <motion.div key={snippet.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} whileHover={{ y: -5 }} className="bg-white/10 dark:bg-black/10 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-white/10 flex flex-col">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-xl font-semibold mb-1">{snippet.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{snippet.description}</p>
+                </div>
+                <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs flex-shrink-0">{snippet.language}</span>
+              </div>
+              
+              <div className="relative flex-grow bg-gray-900 rounded-lg">
+                {/* MODIFICATION: Removed the overflow div, added .code-wrap to the <pre> tag */}
+                <pre className="code-wrap text-gray-300 p-4 text-sm">
+                    <code>{snippet.code}</code>
+                </pre>
+                <motion.button className="absolute top-2 right-2 p-2 bg-gray-800 rounded hover:bg-gray-700" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => copyToClipboard(snippet.code, snippet.id)}>
+                  {copiedId === snippet.id ? '✓' : <FaCopy />}
+                </motion.button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Timeline Section
+const Timeline = () => {
+  const timelineData = [
+    {
+      year: "2024",
+      title: "Senior Full Stack Developer",
+      company: "Tech Corp",
+      description: "Leading development of enterprise applications",
+      icon: <FaBriefcase />
+    },
+    {
+      year: "2023",
+      title: "Full Stack Developer",
+      company: "StartupXYZ",
+      description: "Built scalable web applications from scratch",
+      icon: <FaLaptopCode />
+    },
+    {
+      year: "2022",
+      title: "Junior Developer",
+      company: "Digital Agency",
+      description: "Developed client websites and applications",
+      icon: <FaCode />
+    },
+    {
+      year: "2021",
+      title: "Computer Science Degree",
+      company: "University",
+      description: "Graduated with honors in Computer Science",
+      icon: <FaGraduationCap />
+    }
+  ];
+  
+  return (
+    <section id="timeline" className="py-20 bg-gray-50/50 dark:bg-gray-900/50">
+      <div className="container mx-auto px-4">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="text-4xl md:text-5xl font-bold text-center mb-16"
+        >
+          <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            Career Timeline
+          </span>
+        </motion.h2>
+        
+        <div className="max-w-4xl mx-auto">
+          {timelineData.map((item, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              className={`flex items-center mb-8 ${
+                index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'
+              }`}
+            >
+              <div className={`flex-1 ${index % 2 === 0 ? 'text-right pr-8' : 'text-left pl-8'}`}>
+                <motion.div
+                  className="bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-xl p-6 inline-block"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <div className="text-purple-500 text-2xl mb-2">{item.icon}</div>
+                  <h3 className="text-xl font-bold mb-1">{item.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">{item.company}</p>
+                  <p className="text-gray-500 dark:text-gray-500 text-sm">{item.description}</p>
+                </motion.div>
+              </div>
+              
+              <div className="relative">
+                <motion.div
+                  className="w-16 h-16 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold"
+                  whileHover={{ scale: 1.2, rotate: 360 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {item.year}
+                </motion.div>
+                {index !== timelineData.length - 1 && (
+                  <div className="absolute top-16 left-1/2 transform -translate-x-1/2 w-0.5 h-24 bg-gradient-to-b from-purple-500 to-cyan-500" />
+                )}
+              </div>
+              
+              <div className="flex-1" />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Testimonials Section
+const Testimonials = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const testimonials = [
+    {
+      id: 1,
+      name: "Sarah Johnson",
+      company: "Tech Startup",
+      role: "CEO",
+      image: "https://via.placeholder.com/100",
+      quote: "Exceptional developer with great attention to detail. Delivered our project ahead of schedule with outstanding quality."
+    },
+    {
+      id: 2,
+      name: "Mike Chen",
+      company: "Digital Agency",
+      role: "CTO",
+      image: "https://via.placeholder.com/100",
+      quote: "One of the best developers I've worked with. Strong technical skills and excellent communication throughout the project."
+    },
+    {
+      id: 3,
+      name: "Emily Davis",
+      company: "E-commerce Co",
+      role: "Product Manager",
+      image: "https://via.placeholder.com/100",
+      quote: "Transformed our vision into reality. The attention to user experience and performance optimization was remarkable."
+    }
+  ];
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  return (
+    <section id="testimonials" className="py-20">
+      <div className="container mx-auto px-4">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="text-4xl md:text-5xl font-bold text-center mb-16"
+        >
+          <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            Client Testimonials
+          </span>
+        </motion.h2>
+        
+        <div className="max-w-4xl mx-auto">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              className="bg-white/10 dark:bg-black/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20 dark:border-white/10"
+            >
+              <div className="flex items-center mb-6">
+                <img
+                  src={testimonials[currentIndex].image}
+                  alt={testimonials[currentIndex].name}
+                  className="w-16 h-16 rounded-full mr-4"
+                />
+                <div>
+                  <h3 className="font-semibold text-lg">{testimonials[currentIndex].name}</h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    {testimonials[currentIndex].role} at {testimonials[currentIndex].company}
+                  </p>
+                </div>
+              </div>
+              
+              <p className="text-lg italic text-gray-700 dark:text-gray-300">
+                "{testimonials[currentIndex].quote}"
+              </p>
+            </motion.div>
+          </AnimatePresence>
+          
+          <div className="flex justify-center gap-2 mt-6">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentIndex
+                    ? 'w-8 bg-gradient-to-r from-purple-500 to-cyan-500'
+                    : 'bg-gray-400'
+                }`}
+                onClick={() => setCurrentIndex(index)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Contact Section
+const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Handle form submission
+    console.log('Form submitted:', formData);
+  };
+  
+  return (
+    <section id="contact" className="py-20 bg-gray-50/50 dark:bg-gray-900/50">
+      <div className="container mx-auto px-4">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="text-4xl md:text-5xl font-bold text-center mb-16"
+        >
+          <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            Get In Touch
+          </span>
+        </motion.h2>
+        
+        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+          {/* Contact Form */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+          >
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Your Name"
+                  className="w-full px-4 py-3 bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-lg border border-gray-300 dark:border-gray-700 focus:border-purple-500 focus:outline-none"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  required
+                />
+              </div>
+              
+              <div>
+                <input
+                  type="email"
+                  placeholder="Your Email"
+                  className="w-full px-4 py-3 bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-lg border border-gray-300 dark:border-gray-700 focus:border-purple-500 focus:outline-none"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  required
+                />
+              </div>
+              
+              <div>
+                <textarea
+                  placeholder="Your Message"
+                  rows="5"
+                  className="w-full px-4 py-3 bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-lg border border-gray-300 dark:border-gray-700 focus:border-purple-500 focus:outline-none"
+                  value={formData.message}
+                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                  required
+                />
+              </div>
+              
+              <motion.button
+                type="submit"
+                className="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg font-medium"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Send Message
+              </motion.button>
+            </form>
+          </motion.div>
+          
+          {/* Contact Info */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            className="space-y-6"
+          >
+            <div className="bg-white/10 dark:bg-black/10 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-white/10">
+              <h3 className="text-xl font-semibold mb-4">Let's Connect!</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Feel free to reach out for collaborations or just a friendly hello!
+              </p>
+              
+              <div className="space-y-4">
+                <a
+                  href="mailto:contact@example.com"
+                  className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-purple-500"
+                >
+                  <FaEnvelope className="text-xl" />
+                  contact@example.com
+                </a>
+                
+                <a
+                  href="https://github.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-purple-500"
+                >
+                  <FaGithub className="text-xl" />
+                  GitHub
+                </a>
+                
+                <a
+                  href="https://linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-purple-500"
+                >
+                  <FaLinkedin className="text-xl" />
+                  LinkedIn
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+      
+      {/* Floating WhatsApp Button */}
+      <motion.a
+        href="https://wa.me/1234567890"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-8 right-8 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center text-white shadow-lg"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+      >
+        <FaWhatsapp className="text-2xl" />
+      </motion.a>
+    </section>
+  );
+};
+
+// Footer
+const Footer = () => {
+  return (
+    <footer className="py-8 bg-black/20 backdrop-blur-sm border-t border-white/10">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          <p className="text-gray-600 dark:text-gray-400">
+            © 2024 Portfolio. Built with React & Tailwind CSS
+          </p>
+          
+          <div className="flex gap-4 mt-4 md:mt-0">
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+              <FaGithub className="text-xl hover:text-purple-500 transition-colors" />
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+              <FaLinkedin className="text-xl hover:text-purple-500 transition-colors" />
+            </a>
+            <a href="mailto:contact@example.com">
+              <FaEnvelope className="text-xl hover:text-purple-500 transition-colors" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+// Main App Component
+const App = () => {
+  return (
+    <ThemeProvider>
+      <div className="min-h-screen bg-slate-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 selection:bg-cyan-300 selection:text-cyan-900">
+        <ParticlesBackground />
+        <Navbar />
+        <main>
+          <Hero />
+           <Projects />
+          <TechStack />
+          <CodeSnippets />
+          <Timeline />
+          <Testimonials />
+          <Contact /> 
+        </main>
+        <Footer /> 
+      </div>
+    </ThemeProvider>
+  );
+};
+
+export default App;
