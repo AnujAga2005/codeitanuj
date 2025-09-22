@@ -24,19 +24,19 @@ const useTheme = () => React.useContext(ThemeContext);
 
 // --- 1. IMPROVED CAT SPRITE (Pauses GIF instead of swapping images) ---
 const CatSprite = ({ isMoving }) => {
-  // We use a key that changes only when the cat stops moving.
-  // This forces React to re-render the <img> element, which resets the GIF to its first frame.
-  const imageKey = isMoving ? 'moving' : `stopped-${Date.now()}`;
-
   return (
     <div className="relative h-10 w-12">
+      {/* Your animated GIF is shown when isMoving is true */}
       <img
-        key={imageKey} // This is the magic trick to "pause" the GIF
-        src="./cat.gif" 
-        alt="Animated Cat"
-        className="w-full h-full object-contain"
-        // Style to prevent the browser from trying to animate the paused GIF
-        style={{ imageRendering: isMoving ? 'auto' : 'pixelated' }}
+        src="/cat.gif"
+        alt="Running Cat"
+        className={`w-full h-full object-contain transition-opacity duration-200 ${isMoving ? 'opacity-100' : 'opacity-0'}`}
+      />
+      {/* The static PNG is shown when isMoving is false */}
+      <img
+        src="/cat-idle.png"
+        alt="Idle Cat"
+        className={`absolute top-0 left-0 w-full h-full object-contain transition-opacity duration-200 ${!isMoving ? 'opacity-100' : 'opacity-0'}`}
       />
     </div>
   );
@@ -45,76 +45,103 @@ const CatSprite = ({ isMoving }) => {
 // (Navbar component remains mostly the same, just ensure it uses the new CatSprite)
 const Navbar = () => {
   const { isDark, toggleTheme } = useTheme();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCatHovered, setIsCatHovered] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
 
-  // Effect to detect scrolling
   useEffect(() => {
     let scrollTimeout;
     const handleScroll = () => {
       setIsScrolling(true);
       clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        setIsScrolling(false);
-      }, 150);
+      scrollTimeout = setTimeout(() => setIsScrolling(false), 150);
     };
-    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Determine if the cat should be moving
   const isCatMoving = isCatHovered || isScrolling;
-  
+
   const navLinks = [
-    { name: 'Home', href: '#home' },
     { name: 'Projects', href: '#projects' },
-    { name: 'Tech', href: '#tech' },
+    { name: 'Tech Stack', href: '#tech' },
     { name: 'Snippets', href: '#snippets' },
     { name: 'Contact', href: '#contact' },
   ];
-  
+
   return (
-    <motion.nav id="main-nav" className="fixed top-0 w-full z-40 backdrop-blur-lg bg-white/5 dark:bg-black/5 border-b border-gray-300/20 dark:border-white/10">
-      <div className="container mx-auto px-4 py-2">
-        <div className="flex justify-between items-center">
-          <motion.a 
-            href="#home" 
-            className="flex items-center cursor-pointer gap-2"
-            onMouseEnter={() => setIsCatHovered(true)}
-            onMouseLeave={() => setIsCatHovered(false)}
-          >
-            <CatSprite isMoving={isCatMoving} />
-            <span className="text-2xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 bg-clip-text text-transparent">
-              Anuj Agarwal
-            </span>
-          </motion.a>
-          
-          <div className="hidden md:flex items-center gap-6">
-            {/* LINKS RESTORED HERE */}
-            {navLinks.map((link) => (
-               <motion.a 
-                 key={link.name} 
-                 href={link.href} 
-                 className="text-gray-700 dark:text-gray-300 hover:text-cyan-400 transition-colors" 
-                 whileHover={{ scale: 1.1, y: -2 }}
-               >
-                 {link.name}
-               </motion.a>
-            ))}
-            
-            <motion.button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg font-medium" whileHover={{ scale: 1.05 }} onClick={() => window.open('https://example.com/resume.pdf', '_blank')}>
-              <FaDownload className="inline mr-2" /> Resume
-            </motion.button>
-            <motion.button onClick={toggleTheme} className="p-2 rounded-lg bg-gray-200 dark:bg-gray-800" whileHover={{ scale: 1.1, rotate: 180 }}>
-              {isDark ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-gray-700" />}
-            </motion.button>
-          </div>
+    <motion.nav 
+      id="main-nav" 
+      // Added `relative` for correct dropdown positioning
+      className="fixed top-0 w-full z-50 backdrop-blur-lg bg-white/5 dark:bg-black/5 border-b border-gray-300/20 dark:border-white/10 relative"
+    >
+      {/* Removed the inner 'container' div for a simpler layout */}
+      <div className="flex justify-between items-center h-16 px-4 md:px-8 max-w-7xl mx-auto">
+        {/* LOGO */}
+        <motion.a 
+          href="#home" 
+          className="flex items-center cursor-pointer gap-2"
+          onMouseEnter={() => setIsCatHovered(true)}
+          onMouseLeave={() => setIsCatHovered(false)}
+        >
+          <CatSprite isMoving={isCatMoving} />
+          <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 bg-clip-text text-transparent">
+            Anuj Agarwal
+          </span>
+        </motion.a>
+        
+        {/* DESKTOP MENU */}
+        <div className="hidden md:flex items-center gap-6">
+          {navLinks.map((link) => (
+             <motion.a key={link.name} href={link.href} className="text-gray-700 dark:text-gray-300 hover:text-cyan-400" whileHover={{ scale: 1.1, y: -2 }}>
+               {link.name}
+             </motion.a>
+          ))}
+          <motion.button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg font-medium flex items-center gap-2" whileHover={{ scale: 1.05 }} onClick={() => window.open('https://example.com/resume.pdf', '_blank')}>
+            <FaDownload /> Resume
+          </motion.button>
+          <motion.button onClick={toggleTheme} className="p-2 rounded-lg bg-gray-200 dark:bg-gray-800" whileHover={{ scale: 1.1, rotate: 180 }}>
+            {isDark ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-gray-700" />}
+          </motion.button>
+        </div>
+
+        {/* MOBILE BUTTONS - Resume, Theme, and Menu are all visible */}
+        <div className="md:hidden flex items-center gap-2">
+           <motion.button className="p-2" whileHover={{ scale: 1.1 }} onClick={() => window.open('https://example.com/resume.pdf', '_blank')}>
+            <FaDownload size={20} />
+          </motion.button>
+           <motion.button onClick={toggleTheme} className="p-2" whileHover={{ scale: 1.1 }}>
+            {isDark ? <FaSun className="text-yellow-400" size={22} /> : <FaMoon size={22} />}
+          </motion.button>
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2">
+            {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+          </button>
         </div>
       </div>
+
+      {/* MOBILE DROPDOWN MENU - Redesigned to prevent overflow */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden absolute top-full left-0 w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg shadow-md"
+          >
+            <div className="flex flex-col items-center space-y-2 p-4">
+              {navLinks.map((link) => (
+                 <a key={link.name} href={link.href} className="text-lg text-gray-700 dark:text-gray-300 hover:text-cyan-400 w-full text-center py-3" onClick={() => setIsMenuOpen(false)}>
+                   {link.name}
+                 </a>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 };
+
 
 // (BlinkingCursor and ParticlesBackground components remain the same)
 const BlinkingCursor = () => (
