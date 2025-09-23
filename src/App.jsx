@@ -4,7 +4,7 @@ import {
   FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope, FaDownload, FaExternalLinkAlt,
   FaReact, FaNodeJs, FaHtml5, FaCss3, FaJs, FaJava, FaGitAlt, FaDocker,
   FaMoon, FaSun, FaCopy, FaCode, FaTimes, FaBars, FaArrowUp, FaRocket,
-  FaBriefcase, FaGraduationCap, FaLaptopCode, FaTrophy
+  FaBriefcase, FaGraduationCap, FaLaptopCode, FaTrophy , FaCodeBranch, FaCheckCircle
 } from 'react-icons/fa';
 import { SiTypescript, SiTailwindcss, SiMongodb, SiExpress } from 'react-icons/si';
 import { FaFlutter } from "react-icons/fa6";
@@ -243,6 +243,318 @@ const Hero = () => {
     </section>
   );
 };
+
+const LEETCODE_USERNAME = "oxtSbXIZRN";
+const API_URL = `https://leetcode-stats-api.herokuapp.com/${LEETCODE_USERNAME}`;
+
+const LeetCodeProgressChart = ({ stats, isInView }) => {
+    const size = 180;
+    const strokeWidth = 12;
+    const center = size / 2;
+    const radius = center - strokeWidth;
+    const circumference = 2 * Math.PI * radius;
+
+    const totalSolvedPercentage = stats.totalQuestions > 0 ? (stats.totalSolved / stats.totalQuestions) * 100 : 0;
+    const dashArray = (totalSolvedPercentage / 100) * circumference;
+    const dashOffset = circumference - dashArray;
+
+    return (
+        <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
+                {/* Background Circle */}
+                <circle
+                    cx={center}
+                    cy={center}
+                    r={radius}
+                    fill="transparent"
+                    stroke="rgba(128, 128, 128, 0.1)"
+                    strokeWidth={strokeWidth}
+                />
+                {/* Progress Circle */}
+                <motion.circle
+                    cx={center}
+                    cy={center}
+                    r={radius}
+                    fill="transparent"
+                    stroke="url(#gradient)"
+                    strokeWidth={strokeWidth}
+                    strokeDasharray={circumference}
+                    strokeLinecap="round"
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={isInView ? { strokeDashoffset: dashOffset } : {}}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
+                />
+                {/* Gradient Definition */}
+                <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#8b5cf6" />
+                        <stop offset="50%" stopColor="#06b6d4" />
+                        <stop offset="100%" stopColor="#10b981" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            
+            {/* Center Content */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <motion.div
+                    initial={{ scale: 0 }}
+                    animate={isInView ? { scale: 1 } : {}}
+                    transition={{ duration: 0.8, delay: 0.5 }}
+                    className="text-center"
+                >
+                    <div className="text-3xl font-bold mb-1">
+                        {stats.totalSolved}
+                        <span className="text-lg text-gray-400 ml-1">/{stats.totalQuestions}</span>
+                    </div>
+                    <div className="text-sm font-medium text-green-400">Problems Solved</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                        {Math.round(totalSolvedPercentage)}%
+                    </div>
+                </motion.div>
+            </div>
+        </div>
+    );
+};
+
+const DifficultyCard = ({ difficulty, solved, total, color, delay, isInView }) => {
+    const percentage = total > 0 ? Math.round((solved / total) * 100) : 0;
+    // Ensure minimum visual width for very small percentages
+    const visualWidth = Math.max(percentage, percentage > 0 ? 8 : 0);
+    
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay }}
+            className="bg-white/10 dark:bg-black/30 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105"
+        >
+            <div className="flex items-center justify-between mb-4">
+                <span className="font-semibold text-gray-700 dark:text-gray-300">{difficulty}</span>
+                <span className={`w-4 h-4 rounded-full ${color} shadow-sm`}></span>
+            </div>
+            
+            <div className="space-y-3">
+                <div className="flex items-end gap-1">
+                    <span className="text-3xl font-bold">{solved}</span>
+                    <span className="text-gray-500 pb-1">/{total}</span>
+                </div>
+                
+                {/* Enhanced progress bar with better visual feedback */}
+                <div className="relative">
+                    <div className="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-3 overflow-hidden">
+                        <motion.div
+                            className={`h-full rounded-full ${color} relative`}
+                            style={{
+                                background: `linear-gradient(90deg, ${
+                                    color === 'bg-green-500' ? '#10b981, #059669' :
+                                    color === 'bg-yellow-500' ? '#f59e0b, #d97706' :
+                                    '#ef4444, #dc2626'
+                                })`
+                            }}
+                            initial={{ width: 0 }}
+                            animate={isInView ? { width: `${visualWidth}%` } : {}}
+                            transition={{ duration: 1.2, delay: delay + 0.3, ease: "easeOut" }}
+                        >
+                            {/* Glow effect for small percentages */}
+                            {percentage > 0 && percentage < 10 && (
+                                <div className={`absolute inset-0 ${color} opacity-60 blur-sm`}></div>
+                            )}
+                        </motion.div>
+                    </div>
+                    
+                    {/* Progress indicator dot for very small values */}
+                    {percentage > 0 && percentage < 5 && (
+                        <motion.div
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={isInView ? { scale: 1, opacity: 1 } : {}}
+                            transition={{ duration: 0.5, delay: delay + 0.8 }}
+                            className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 ${color} rounded-full shadow-sm`}
+                        />
+                    )}
+                </div>
+                
+                <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        {percentage}% complete
+                    </span>
+                    {solved > 0 && (
+                        <span className="text-xs px-2 py-1 bg-white/20 dark:bg-black/20 rounded-full text-gray-600 dark:text-gray-400">
+                            +{solved} solved
+                        </span>
+                    )}
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
+const LeetCodeStats = () => {
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true, amount: 0.3 });
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch stats. Status: ${response.status}. Please try again later.`);
+                }
+                const data = await response.json();
+                if (data.status === "error") {
+                    throw new Error(data.message);
+                }
+                setStats(data);
+                setError(null);
+            } catch (err) {
+                setError(err.message);
+                setStats(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
+
+    const difficulties = [
+        { name: 'Easy', solved: stats?.easySolved || 0, total: stats?.totalEasy || 0, color: 'bg-green-500' },
+        { name: 'Medium', solved: stats?.mediumSolved || 0, total: stats?.totalMedium || 0, color: 'bg-yellow-500' },
+        { name: 'Hard', solved: stats?.hardSolved || 0, total: stats?.totalHard || 0, color: 'bg-red-500' },
+    ];
+
+    return (
+        <section id="leetcode" className="py-20 bg-gray-50/50 dark:bg-gray-900/50" ref={ref}>
+            <div className="container mx-auto px-4">
+                <motion.h2 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="text-4xl md:text-5xl font-bold text-center mb-16"
+                >
+                    <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                        LeetCode Journey
+                    </span>
+                </motion.h2>
+
+                <div className="max-w-6xl mx-auto">
+                    {loading && (
+                        <div className="text-center py-20">
+                            <div className="inline-flex items-center gap-2">
+                                <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                                <span className="text-lg">Loading LeetCode stats...</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {error && (
+                        <div className="text-center py-20">
+                            <div className="bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg p-6 max-w-md mx-auto">
+                                <div className="text-red-600 dark:text-red-400 mb-2">
+                                    <svg className="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <p className="text-red-800 dark:text-red-200 font-medium">Unable to load stats</p>
+                                <p className="text-red-600 dark:text-red-400 text-sm mt-1">{error}</p>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {stats && !loading && !error && (
+                        <div className="space-y-8">
+                            {/* Main Stats Card */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                                transition={{ duration: 0.8 }}
+                                className="bg-gradient-to-br from-white/20 to-white/5 dark:from-black/20 dark:to-black/5 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/10 p-8 shadow-2xl"
+                            >
+                                <div className="grid md:grid-cols-3 gap-8 items-center">
+                                    {/* Profile Section */}
+                                    <div className="text-center md:text-left">
+                                        <div className="flex items-center gap-4 justify-center md:justify-start mb-4">
+                                            {/* Simple Profile Image - You can replace the src */}
+                                            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 p-1">
+                                                <img 
+                                                    src="/anuj.webp"
+                                                    alt="LeetCode Profile" 
+                                                    className="w-full h-full rounded-full object-cover bg-white dark:bg-gray-900"
+                                                />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-xl font-bold">Anuj Agarwal</h3>
+                                                <p className="text-gray-500 dark:text-gray-400">@{LEETCODE_USERNAME}</p>
+                                                {stats.ranking && (
+                                                    <p className="text-sm text-purple-500 dark:text-purple-400 font-medium">
+                                                        Rank: {stats.ranking.toLocaleString()}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Progress Chart */}
+                                    <div className="flex justify-center">
+                                        <LeetCodeProgressChart stats={stats} isInView={isInView} />
+                                    </div>
+
+                                    {/* Quick Stats */}
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="text-center p-3 bg-white/10 dark:bg-black/20 rounded-lg">
+                                                <div className="text-2xl font-bold text-green-500">{stats.totalSolved}</div>
+                                                <div className="text-xs text-gray-500">Total Solved</div>
+                                            </div>
+                                            <div className="text-center p-3 bg-white/10 dark:bg-black/20 rounded-lg">
+                                                <div className="text-2xl font-bold text-blue-500">{stats.acceptanceRate || 'N/A'}%</div>
+                                                <div className="text-xs text-gray-500">Acceptance</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <motion.a
+                                            href={`https://leetcode.com/${LEETCODE_USERNAME}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block w-full text-center px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:scale-105"
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            <FaExternalLinkAlt className="inline mr-2" />
+                                            View Profile
+                                        </motion.a>
+                                    </div>
+                                </div>
+                            </motion.div>
+
+                            {/* Difficulty Breakdown */}
+                            <div className="grid md:grid-cols-3 gap-6">
+                                {difficulties.map((diff, index) => (
+                                    <DifficultyCard
+                                        key={diff.name}
+                                        difficulty={diff.name}
+                                        solved={diff.solved}
+                                        total={diff.total}
+                                        color={diff.color}
+                                        delay={index * 0.2}
+                                        isInView={isInView}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </section>
+    );
+};
+
+
+
+
 
 // Project Modal
 const ProjectModal = ({ project, isOpen, onClose }) => {
@@ -1025,7 +1337,8 @@ const App = () => {
         <Navbar />
         <main>
           <Hero />
-           <Projects />
+          <LeetCodeStats />
+          <Projects />
           <TechStack />
           <CodeSnippets />
           <Timeline />
