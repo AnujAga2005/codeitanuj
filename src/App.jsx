@@ -185,17 +185,47 @@ const ParticlesBackground = () => {
 };
 
 // Hero Section
+// Enhanced Hero Section
+// Enhanced Hero Section - Mobile Optimized
 const Hero = () => {
   const phrases = ["Full Stack Developer.", "Creative Coder.", "Tech Enthusiast."];
   const [currentPhrase, setCurrentPhrase] = useState(0);
+  const [displayText, setDisplayText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [typingSpeed, setTypingSpeed] = useState(100);
+
+  // Advanced typewriter effect
   useEffect(() => {
-    const interval = setInterval(() => setCurrentPhrase((prev) => (prev + 1) % phrases.length), 3000);
-    return () => clearInterval(interval);
-  }, []);
+    const currentWord = phrases[currentPhrase];
+    
+    const type = () => {
+      if (!isDeleting) {
+        setDisplayText(currentWord.substring(0, displayText.length + 1));
+        setTypingSpeed(100);
+        
+        if (displayText === currentWord) {
+          setTimeout(() => setIsDeleting(true), 2000);
+        }
+      } else {
+        setDisplayText(currentWord.substring(0, displayText.length - 1));
+        setTypingSpeed(50);
+        
+        if (displayText === '') {
+          setIsDeleting(false);
+          setCurrentPhrase((prev) => (prev + 1) % phrases.length);
+        }
+      }
+    };
+
+    const timer = setTimeout(type, typingSpeed);
+    return () => clearTimeout(timer);
+  }, [displayText, isDeleting, currentPhrase, phrases, typingSpeed]);
+
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const rotateX = useTransform(mouseY, [-500, 500], [5, -5]);
-  const rotateY = useTransform(mouseX, [-500, 500], [-5, 5]);
+  const rotateX = useTransform(mouseY, [-300, 300], [5, -5]);
+  const rotateY = useTransform(mouseX, [-300, 300], [-5, 5]);
+  
   const handleMouseMove = (event) => {
     const { clientX, clientY, currentTarget } = event;
     const { left, top, width, height } = currentTarget.getBoundingClientRect();
@@ -203,40 +233,319 @@ const Hero = () => {
     mouseY.set(clientY - top - height / 2);
   };
 
-   return (
-    <section id="home" className="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden" onMouseMove={handleMouseMove}>
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob dark:opacity-30"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-600 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-4000 dark:opacity-30"></div>
-      <div className="container mx-auto px-4 z-10">
-        {/* MODIFICATION: Added min-h-[550px] and flex classes */}
+  return (
+    <section 
+      id="home" 
+      className="min-h-screen flex items-center justify-center pt-16 pb-8 px-4 relative overflow-hidden" 
+      onMouseMove={handleMouseMove}
+    >
+      {/* Animated background elements - Optimized for mobile */}
+      <div className="absolute inset-0">
+        {/* Floating geometric shapes - Reduced size for mobile */}
+        <motion.div
+          className="absolute top-1/4 left-1/6 w-48 h-48 md:w-72 md:h-72 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full mix-blend-multiply filter blur-xl opacity-15 md:opacity-20 dark:opacity-25 md:dark:opacity-30"
+          animate={{
+            x: [0, 50, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
+        
+        <motion.div
+          className="absolute bottom-1/4 right-1/6 w-64 h-64 md:w-96 md:h-96 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-15 md:opacity-20 dark:opacity-25 md:dark:opacity-30"
+          animate={{
+            x: [0, -25, 0],
+            y: [0, 25, 0],
+            scale: [1, 0.8, 1],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
+
+        <motion.div
+          className="absolute top-1/2 right-1/4 w-32 h-32 md:w-48 md:h-48 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mix-blend-multiply filter blur-2xl opacity-10 md:opacity-15 dark:opacity-20 md:dark:opacity-25"
+          animate={{
+            x: [0, -40, 0],
+            y: [0, 40, 0],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
+
+        {/* Grid pattern overlay - Less dense on mobile */}
+        <div className="absolute inset-0 opacity-[0.01] md:opacity-[0.02] dark:opacity-[0.03] md:dark:opacity-[0.05]">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)',
+            backgroundSize: '30px 30px'
+          }} />
+        </div>
+      </div>
+
+      <div className="container mx-auto z-10 w-full max-w-6xl">
         <motion.div 
-          className="max-w-4xl mx-auto bg-white/80 dark:bg-black/20 backdrop-blur-xl rounded-2xl border border-gray-300/50 dark:border-white/20 p-8 text-center shadow-lg dark:shadow-none min-h-[550px] flex flex-col justify-center"
-          style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+          className="relative w-full"
+          style={{ 
+            rotateX: useTransform(rotateX, [5, -5], [2, -2]), // Reduced rotation on mobile
+            rotateY: useTransform(rotateY, [-5, 5], [-2, 2]),
+            transformStyle: 'preserve-3d' 
+          }}
         >
-          {/* Terminal header */}
-          <div className="absolute top-4 left-6 flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-          </div>
-          {/* Content */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <img src="/profile.png" alt="Anuj Agarwal" className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-cyan-400/50" />
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 bg-clip-text text-transparent">Anuj Agarwal</span>
-            </h1>
-            <div className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 h-8">
-              <span>{phrases[currentPhrase]}</span>
-              <BlinkingCursor />
+          {/* Main hero card - Mobile optimized */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="relative bg-white/10 dark:bg-black/20 backdrop-blur-2xl rounded-2xl md:rounded-3xl border border-white/20 dark:border-white/10 p-4 md:p-8 lg:p-12 shadow-2xl overflow-hidden mx-auto"
+          >
+            {/* Terminal-style header - Mobile responsive */}
+            <div className="absolute top-3 left-3 md:top-6 md:left-6 flex items-center gap-2 md:gap-3">
+              <div className="flex gap-1 md:gap-2">
+                <motion.div 
+                  className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-red-500"
+                  whileHover={{ scale: 1.2 }}
+                />
+                <motion.div 
+                  className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-yellow-500"
+                  whileHover={{ scale: 1.2 }}
+                />
+                <motion.div 
+                  className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-green-500"
+                  whileHover={{ scale: 1.2 }}
+                />
+              </div>
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-mono hidden sm:block">
+                ~/portfolio/hero.tsx
+              </span>
             </div>
-            <div className="flex gap-4 justify-center">
-              <motion.button className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium flex items-center gap-2" whileHover={{ scale: 1.05 }} onClick={() => document.getElementById('projects').scrollIntoView({ behavior: 'smooth' })}>
-                <FaRocket /> View Projects
-              </motion.button>
-              <motion.button className="px-8 py-3 bg-transparent border-2 border-cyan-400 text-cyan-400 rounded-lg font-medium flex items-center gap-2" whileHover={{ scale: 1.05, backgroundColor: 'rgba(0, 255, 255, 0.1)' }} onClick={() => window.open('https://example.com/resume.pdf', '_blank')}>
-                <FaDownload /> My Resume
-              </motion.button>
+
+            {/* Decorative code snippets - Hidden on mobile */}
+            <div className="absolute top-0 right-0 w-1/3 h-full opacity-5 dark:opacity-10 overflow-hidden hidden lg:block">
+              <pre className="text-xs font-mono text-gray-600 dark:text-gray-400 p-4 transform rotate-12">
+{`const developer = {
+  name: "Anuj Agarwal",
+  skills: ["React", "Node.js"],
+  passion: "Building amazing things"
+};`}
+              </pre>
             </div>
+
+            <div className="text-center relative z-10 pt-6 md:pt-8">
+              {/* Profile image with enhanced styling - Mobile optimized */}
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 1, delay: 0.2, type: "spring", stiffness: 100 }}
+                className="relative inline-block mb-4 md:mb-8"
+              >
+                <div className="relative">
+                  {/* Animated ring around profile - Smaller on mobile */}
+                  <motion.div
+                    className="absolute -inset-2 md:-inset-4 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    style={{ padding: '2px md:4px' }}
+                  />
+                  <motion.div
+                    className="absolute -inset-1 md:-inset-2 rounded-full bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 opacity-70"
+                    animate={{ rotate: -360 }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                    style={{ padding: '1px md:2px' }}
+                  />
+                  
+                  <div className="relative w-24 h-24 md:w-36 md:h-36 rounded-full p-1 bg-white dark:bg-gray-900">
+                    <img 
+                      src="/profile.png" 
+                      alt="Anuj Agarwal" 
+                      className="w-full h-full rounded-full object-cover shadow-xl"
+                    />
+                    {/* Status indicator - Smaller on mobile */}
+                    <div className="absolute bottom-1 right-1 md:bottom-2 md:right-2 w-4 h-4 md:w-6 md:h-6 bg-green-500 rounded-full border-2 md:border-3 border-white dark:border-gray-900 flex items-center justify-center">
+                      <div className="w-1 h-1 md:w-2 md:h-2 bg-white rounded-full animate-pulse" />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Name with enhanced animation - Mobile responsive text */}
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-3 md:mb-6 leading-tight px-2"
+              >
+                <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 bg-clip-text text-transparent">
+                  Anuj Agarwal
+                </span>
+              </motion.h1>
+
+              {/* Enhanced typewriter effect - Mobile responsive */}
+              <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-700 dark:text-gray-300 mb-4 md:mb-8 h-8 md:h-12 flex items-center justify-center px-4">
+                <span className="font-mono text-center">
+                  {displayText}
+                  <motion.span
+                    animate={{ opacity: [1, 0] }}
+                    transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
+                    className="inline-block w-0.5 md:w-1 h-6 md:h-8 bg-cyan-400 ml-1"
+                  />
+                </span>
+              </div>
+
+              {/* Interactive skill badges - Mobile responsive */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                className="flex flex-wrap justify-center gap-2 md:gap-3 mb-6 md:mb-10 px-2"
+              >
+                {['React', 'Node.js', 'MongoDB', 'Express'].map((skill, index) => (
+                  <motion.span
+                    key={skill}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.8 + index * 0.1 }}
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    className="px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 backdrop-blur-sm border border-white/20 rounded-full text-xs md:text-sm font-medium text-purple-600 dark:text-purple-400"
+                  >
+                    {skill}
+                  </motion.span>
+                ))}
+              </motion.div>
+
+              {/* Enhanced CTA buttons - Mobile stack layout */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.8 }}
+                className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center px-4"
+              >
+                <motion.button 
+                  className="group relative w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl md:rounded-2xl font-semibold flex items-center justify-center gap-2 md:gap-3 shadow-lg overflow-hidden"
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 20px 40px rgba(168, 85, 247, 0.4)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => document.getElementById('projects').scrollIntoView({ behavior: 'smooth' })}
+                >
+                  <span className="relative z-10 text-sm md:text-base">
+                    <FaRocket className="inline" /> View My Work
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                </motion.button>
+                
+                <motion.button 
+                  className="group relative w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-transparent border-2 border-cyan-400 text-cyan-400 rounded-xl md:rounded-2xl font-semibold flex items-center justify-center gap-2 md:gap-3 overflow-hidden backdrop-blur-sm"
+                  whileHover={{ 
+                    scale: 1.05,
+                    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                    borderColor: '#22d3ee'
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => window.open('https://example.com/resume.pdf', '_blank')}
+                >
+                  <span className="relative z-10 text-sm md:text-base">
+                    <FaDownload className="inline" /> Download Resume
+                  </span>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: "100%" }}
+                    transition={{ duration: 0.6 }}
+                  />
+                </motion.button>
+              </motion.div>
+
+              {/* Social proof indicators - Mobile responsive */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.2, duration: 0.8 }}
+                className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/10"
+              >
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 md:gap-8 text-xs md:text-sm text-gray-500 dark:text-gray-400 px-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    <span>Available for projects</span>
+                  </div>
+                  <div className="hidden sm:block w-px h-4 bg-gray-300 dark:bg-gray-600" />
+                  <div className="flex items-center gap-2">
+                    <FaCode className="text-purple-500" />
+                    <span>Full Stack Developer</span>
+                  </div>
+                  <div className="hidden md:block w-px h-4 bg-gray-300 dark:bg-gray-600" />
+                  <div className="flex items-center gap-2 hidden md:flex">
+                    <span>📍</span>
+                    <span>India</span>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Floating elements - Hidden on mobile */}
+            <motion.div
+              className="absolute top-20 right-10 text-purple-500/20 text-4xl md:text-6xl hidden lg:block"
+              animate={{
+                y: [0, -20, 0],
+                rotate: [0, 5, 0]
+              }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <FaCode />
+            </motion.div>
+
+            <motion.div
+              className="absolute bottom-20 left-10 text-cyan-500/20 text-2xl md:text-4xl hidden lg:block"
+              animate={{
+                y: [0, 15, 0],
+                rotate: [0, -5, 0]
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <FaReact />
+            </motion.div>
+          </motion.div>
+
+          {/* Scroll indicator - Mobile responsive */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5, duration: 0.8 }}
+            className="absolute -bottom-16 md:-bottom-20 left-1/2 transform -translate-x-1/2"
+          >
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="flex flex-col items-center text-gray-400 dark:text-gray-600"
+            >
+              <span className="text-xs md:text-sm mb-2 hidden sm:block">Scroll to explore</span>
+              <div className="w-5 h-8 md:w-6 md:h-10 border-2 border-current rounded-full flex justify-center">
+                <motion.div
+                  animate={{ y: [0, 10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-1 h-2 md:h-3 bg-current rounded-full mt-1.5 md:mt-2"
+                />
+              </div>
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>
