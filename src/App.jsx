@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useInView, useMotionValue } from 'framer-motion';
 import { 
   FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope, FaDownload, FaExternalLinkAlt,
-  FaReact, FaNodeJs, FaHtml5, FaCss3, FaJs, FaPython, FaGitAlt, FaDocker,
+  FaReact, FaNodeJs, FaHtml5, FaCss3, FaJs, FaJava, FaGitAlt, FaDocker,
   FaMoon, FaSun, FaCopy, FaCode, FaTimes, FaBars, FaArrowUp, FaRocket,
   FaBriefcase, FaGraduationCap, FaLaptopCode, FaTrophy
 } from 'react-icons/fa';
 import { SiTypescript, SiTailwindcss, SiMongodb, SiExpress } from 'react-icons/si';
+import { FaFlutter } from "react-icons/fa6";
+
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 
@@ -483,12 +485,12 @@ const TechStack = () => {
   const technologies = [
     { name: "React", icon: <FaReact />, level: 90, color: "from-cyan-400 to-cyan-600" },
     { name: "Node.js", icon: <FaNodeJs />, level: 85, color: "from-green-400 to-green-600" },
-    { name: "TypeScript", icon: <SiTypescript />, level: 80, color: "from-blue-400 to-blue-600" },
     { name: "MongoDB", icon: <SiMongodb />, level: 75, color: "from-green-500 to-green-700" },
     { name: "Tailwind", icon: <SiTailwindcss />, level: 95, color: "from-teal-400 to-teal-600" },
     { name: "Express", icon: <SiExpress />, level: 80, color: "from-gray-400 to-gray-600" },
-    { name: "Python", icon: <FaPython />, level: 70, color: "from-yellow-400 to-yellow-600" },
+    { name: "Java", icon: <FaJava />, level: 80, color: "from-yellow-400 to-yellow-600" },
     { name: "Docker", icon: <FaDocker />, level: 65, color: "from-blue-400 to-blue-600" },
+    { name: "Flutter", icon: <FaFlutter />, level: 40, color: "from-blue-400 to-blue-600" },
   ];
   
   return (
@@ -663,7 +665,7 @@ const Timeline = () => {
     {
       year: "2025",
       title: "Mastered Full Stack Development",
-      company: "Self-Taught & Coursework",
+      company: "Self-Taught",
       description: "Became proficient with the MERN stack (MongoDB, Express, React, Node.js) and modern tools like Tailwind CSS.",
       icon: <FaLaptopCode />
     },
@@ -933,15 +935,17 @@ const Contact = () => {
               
               <div className="space-y-4">
                 <a
-                  href="mailto:contact@example.com"
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=anujagarwal1704@gmail.com"
                   className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-purple-500"
-                >
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >
                   <FaEnvelope className="text-xl" />
-                  contact@example.com
+                      anujagarwal1704@gmail.com
                 </a>
                 
                 <a
-                  href="https://github.com"
+                  href="https://github.com/AnujAga2005"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-purple-500"
@@ -951,7 +955,7 @@ const Contact = () => {
                 </a>
                 
                 <a
-                  href="https://linkedin.com"
+                  href="https://www.linkedin.com/in/a---garwal/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-purple-500"
@@ -987,17 +991,21 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-600 dark:text-gray-400">
-            © 2024 Portfolio. Built with React & Tailwind CSS
+            © 2025 Anuj Agarwal
           </p>
           
           <div className="flex gap-4 mt-4 md:mt-0">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/AnujAga2005" target="_blank" rel="noopener noreferrer">
               <FaGithub className="text-xl hover:text-purple-500 transition-colors" />
             </a>
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://www.linkedin.com/in/a---garwal/" target="_blank" rel="noopener noreferrer">
               <FaLinkedin className="text-xl hover:text-purple-500 transition-colors" />
             </a>
-            <a href="mailto:contact@example.com">
+            <a 
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=anujagarwal1704@gmail.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
               <FaEnvelope className="text-xl hover:text-purple-500 transition-colors" />
             </a>
           </div>
@@ -1021,7 +1029,7 @@ const App = () => {
           <TechStack />
           <CodeSnippets />
           <Timeline />
-          <Testimonials />
+          {/* <Testimonials /> */}
           <Contact /> 
         </main>
         <Footer /> 
