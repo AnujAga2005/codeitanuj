@@ -219,7 +219,7 @@ const Hero = () => {
           </div>
           {/* Content */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <img src="/profile.jpg" alt="Anuj Agarwal" className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-cyan-400/50" />
+            <img src="/profile.png" alt="Anuj Agarwal" className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-cyan-400/50" />
             <h1 className="text-4xl md:text-6xl font-bold mb-4">
               <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 bg-clip-text text-transparent">Anuj Agarwal</span>
             </h1>
@@ -403,9 +403,13 @@ const Projects = () => {
               initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               whileHover={{ scale: 1.02 }}
-              className={`grid md:grid-cols-2 gap-8 bg-white/10 dark:bg-black/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-white/10 ${
+              // --- MODIFICATION START ---
+              // Changed bg-white/10 to bg-white for solid background in light mode
+              // Changed border-white/20 to border-gray-200 for a visible border in light mode
+              className={`grid md:grid-cols-2 gap-8 bg-white dark:bg-black/10 backdrop-blur-xl rounded-2xl p-6 border border-gray-200 dark:border-white/10 ${
                 index % 2 === 1 ? 'md:flex-row-reverse' : ''
               }`}
+              // --- MODIFICATION END ---
             >
               {/* Project Preview */}
               <div className={`relative overflow-hidden rounded-lg ${index % 2 === 1 ? 'md:order-2' : ''}`}>
