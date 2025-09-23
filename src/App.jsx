@@ -650,36 +650,38 @@ async function fetchData<T>(url: string): Promise<ApiResponse<T>> {
 
 // Timeline Section
 const Timeline = () => {
+  // --- MODIFICATION START ---
+  // Replace the old timelineData with this new one
   const timelineData = [
     {
-      year: "2024",
-      title: "Senior Full Stack Developer",
-      company: "Tech Corp",
-      description: "Leading development of enterprise applications",
-      icon: <FaBriefcase />
+      year: "Present",
+      title: "Building Full-Stack Projects",
+      company: "Personal Development",
+      description: "Applying my skills to create projects like an alumni portal, a chess game, and a smart expense tracker.",
+      icon: <FaRocket /> // Changed icon
     },
     {
-      year: "2023",
-      title: "Full Stack Developer",
-      company: "StartupXYZ",
-      description: "Built scalable web applications from scratch",
+      year: "2025",
+      title: "Mastered Full Stack Development",
+      company: "Self-Taught & Coursework",
+      description: "Became proficient with the MERN stack (MongoDB, Express, React, Node.js) and modern tools like Tailwind CSS.",
       icon: <FaLaptopCode />
     },
     {
-      year: "2022",
-      title: "Junior Developer",
-      company: "Digital Agency",
-      description: "Developed client websites and applications",
+      year: "2024",
+      title: "Learned Data Structures & Algorithms",
+      company: "Apna College",
+      description: "Built a strong foundation in core computer science principles and problem-solving.",
       icon: <FaCode />
     },
     {
-      year: "2021",
-      title: "Computer Science Degree",
-      company: "University",
-      description: "Graduated with honors in Computer Science",
+      year: "2024",
+      title: "Started B.Tech in Computer Science Engineering",
+      description: "Began my formal journey into the world of technology and computer science.",
       icon: <FaGraduationCap />
     }
   ];
+  // --- MODIFICATION END ---
   
   return (
     <section id="timeline" className="py-20 bg-gray-50/50 dark:bg-gray-900/50">
@@ -690,10 +692,12 @@ const Timeline = () => {
           className="text-4xl md:text-5xl font-bold text-center mb-16"
         >
           <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            Career Timeline
+            {/* --- MODIFICATION: Update the title here --- */}
+            My Journey
           </span>
         </motion.h2>
         
+        {/* The rest of the component's JSX remains the same */}
         <div className="max-w-4xl mx-auto">
           {timelineData.map((item, index) => (
             <motion.div
