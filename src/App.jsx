@@ -973,36 +973,36 @@ const Projects = () => {
   const projects = [
     {
       id: 1,
-      title: "E-Commerce Platform",
-      description: "Full-stack MERN e-commerce with payment integration",
-      fullDescription: "A comprehensive e-commerce solution built with the MERN stack, featuring user authentication, product management, shopping cart functionality, and Stripe payment integration.",
-      challenges: "Implementing secure payment processing and optimizing database queries for large product catalogs. Solved by using Stripe's secure APIs and implementing efficient indexing strategies.",
+      title: "FitZone – Fitness Landing Page",
+      description: "FitZone is a modern, responsive landing page designed for a fitness and training brand.",
+      fullDescription: "FitZone is a modern, responsive landing page designed for a fitness and training brand. The website combines bold typography, engaging visuals, and smooth navigation to motivate users to explore services, trainers, and wellness programs. With a clean layout and mobile-first design, it ensures accessibility and performance across devices.",
+      challenges: "Creating a visually dynamic design that highlights multiple fitness services without overwhelming the user.",
       image: "/gym.png",
-      techStack: ["React", "Node.js", "MongoDB", "Express", "Stripe"],
-      github: "https://github.com",
-      live: "https://example.com"
+      techStack: ["HTML", "CSS", "JavaScript", "React", "Tailwind CSS"],
+      //github: "https://github.com",
+      live: "https://anujaga2005.github.io/fitzone/"
     },
     {
       id: 2,
-      title: "AI Task Manager",
-      description: "Smart task management with AI-powered suggestions",
-      fullDescription: "An intelligent task management application that uses machine learning to suggest task priorities, estimate completion times, and provide productivity insights.",
-      challenges: "Integrating AI models with real-time user data while maintaining performance. Implemented edge caching and background workers for ML inference.",
-      image: "/gym.png",
-      techStack: ["Next.js", "Python", "TensorFlow", "PostgreSQL", "Redis"],
-      github: "https://github.com",
-      live: "https://example.com"
+      title: "Aura Clothing – E-commerce Store",
+      description: "Aura Clothing is a sleek and trendy e-commerce website built to showcase fashion products with a premium shopping experience.",
+      fullDescription: "Aura Clothing is a sleek and trendy e-commerce website built to showcase fashion products with a premium shopping experience. It features an intuitive product catalog, minimalistic UI, and mobile-friendly layout, emphasizing usability and style.",
+      challenges: "Designing a product-focused layout that highlights items while keeping the interface clutter-free.",
+      image: "/aura.png",
+      techStack: ["HTML", "CSS", "JavaScript", "React", "Tailwind CSS"],
+      //github: "https://github.com",
+      live: "https://auraclothing-blond.vercel.app/"
     },
     {
       id: 3,
-      title: "Real-time Chat App",
-      description: "WebSocket-based chat with video calling features",
-      fullDescription: "A modern chat application supporting real-time messaging, video calls, file sharing, and group conversations with end-to-end encryption.",
-      challenges: "Handling WebRTC connections across different network configurations. Implemented TURN/STUN servers and fallback mechanisms.",
-      image: "/gym.png",
-      techStack: ["React", "Socket.io", "WebRTC", "Node.js", "Redis"],
-      github: "https://github.com",
-      live: "https://example.com"
+      title: "CodeItAnuj – Personal Portfolio",
+      description: "CodeItAnuj is a personal portfolio website crafted to showcase projects, skills, and achievements as a web developer.",
+      fullDescription: "CodeItAnuj is a personal portfolio website crafted to showcase projects, skills, and achievements as a web developer. It uses a clean aesthetic, smooth transitions, and interactive components to make the profile stand out.",
+      challenges: "Making the portfolio unique in a sea of generic developer sites.",
+      image: "/portfolio.png",
+      techStack: ["HTML", "CSS", "JavaScript", "React", "Tailwind CSS"],
+      //github: "https://github.com",
+      live: "https://codeitanuj.vercel.app"
     }
   ];
   
