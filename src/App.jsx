@@ -1825,7 +1825,7 @@ const Contact = () => {
       </div>
       
       {/* Floating WhatsApp Button */}
-      <motion.a
+      {/* <motion.a
         href="https://wa.me/7003456844"
         target="_blank"
         rel="noopener noreferrer"
@@ -1834,7 +1834,7 @@ const Contact = () => {
         whileTap={{ scale: 0.9 }}
       >
         <FaWhatsapp className="text-2xl" />
-      </motion.a>
+      </motion.a> */}
     </section>
   );
 };
