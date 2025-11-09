@@ -973,26 +973,30 @@ const Projects = () => {
   const projects = [
     {
       id: 1,
-      title: "FitZone – Fitness Landing Page",
-      description: "FitZone is a modern, responsive landing page designed for a fitness and training brand.",
-      fullDescription: "FitZone is a modern, responsive landing page designed for a fitness and training brand. The website combines bold typography, engaging visuals, and smooth navigation to motivate users to explore services, trainers, and wellness programs. With a clean layout and mobile-first design, it ensures accessibility and performance across devices.",
-      challenges: "Creating a visually dynamic design that highlights multiple fitness services without overwhelming the user.",
-      image: "/gym.png",
-      techStack: ["HTML", "CSS", "JavaScript", "React", "Tailwind CSS"],
-      //github: "https://github.com",
-      live: "https://anujaga2005.github.io/fitzone/"
-    },
-    {
-      id: 2,
-      title: "Aura Clothing – E-commerce Store",
-      description: "Aura Clothing is a sleek and trendy e-commerce website built to showcase fashion products with a premium shopping experience.",
-      fullDescription: "Aura Clothing is a sleek and trendy e-commerce website built to showcase fashion products with a premium shopping experience. It features an intuitive product catalog, minimalistic UI, and mobile-friendly layout, emphasizing usability and style.",
-      challenges: "Designing a product-focused layout that highlights items while keeping the interface clutter-free.",
-      image: "/aura.png",
-      techStack: ["HTML", "CSS", "JavaScript", "React", "Tailwind CSS"],
-      //github: "https://github.com",
-      live: "https://auraclothing-blond.vercel.app/"
-    },
+      title: "GrowMate – Gamified Habit Tracker",
+description: "Turn your daily habits into a game — track, grow, and stay consistent with an interactive streak-based system.",
+fullDescription: `GrowMate is a full-stack productivity app designed to make habit tracking exciting and rewarding. Built with React, TypeScript, Node.js, Express, and MongoDB, it transforms consistency into progress using gamified streaks, progress rings, and animations powered by Framer Motion. Users can set daily habits, track progress, and visualize growth through clean, responsive charts. The UI is designed for focus and motivation — combining playful animations with minimalist design principles. Authentication and user data persistence ensure a personal, reliable experience. Frontend deployed on Vercel, backend on Render.`,
+challenges: `Designing a dynamic streak system that updates accurately with time zones.
+
+Handling smooth state transitions in Framer Motion while keeping UI responsive.
+
+Managing authentication and user persistence securely using JWT tokens.
+
+Learned how to optimize frontend rendering and improve API response consistency.`,       image: "/Growmate.png",       techStack: ["React", "TypeScript", "Node.js", "Express", "MongoDB", "Framer Motion", "Tailwind CSS", "JWT", "Vercel", "Render"],       github: "<https://github.com/AnujAga2005/GrowMate>",       live: "<https://growmate-lemon.vercel.app/>"     },     {       id: 2,       title: "BookCafe - Social Media for Book Lovers",       description: "A cozy social app for book lovers to share reviews, connect, and explore trending reads.",       fullDescription:` BookCafe is a community-driven social platform where readers can post reviews, interact through comments, and follow other users.
+Developed using React, TypeScript, Node.js, Express, and MongoDB, it supports full CRUD operations, real-time UI updates, and secure authentication.
+The interface, built with Tailwind CSS and Framer Motion, balances readability and aesthetic calmness, reflecting the feel of a digital reading lounge.`,       challenges:` Implementing post/comment relationships in MongoDB with efficient schema design.
+
+Structuring secure JWT-based authentication and session persistence.
+
+Balancing animation performance with large data sets.
+
+Learned to build scalable REST APIs and handle frontend data fetching elegantly.`,
+image: "/BookCafe.png",
+techStack: ["React", "TypeScript", "Node.js", "Express", "MongoDB", "Framer Motion", "Tailwind CSS", "JWT", "Vercel", "Render"],
+github: "https://github.com/AnujAga2005/BookCafe",
+live: "https://bookcafe-henna.vercel.app/"
+},
+>
     {
       id: 3,
       title: "CodeItAnuj – Personal Portfolio",
