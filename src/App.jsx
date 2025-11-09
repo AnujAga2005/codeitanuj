@@ -996,7 +996,6 @@ techStack: ["React", "TypeScript", "Node.js", "Express", "MongoDB", "Framer Moti
 github: "https://github.com/AnujAga2005/BookCafe",
 live: "https://bookcafe-henna.vercel.app/"
 },
->
     {
       id: 3,
       title: "CodeItAnuj – Personal Portfolio",
