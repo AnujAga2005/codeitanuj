@@ -67,7 +67,7 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Projects', href: '#projects' },
     { name: 'Tech Stack', href: '#tech' },
-    { name: 'Snippets', href: '#snippets' },
+    { name: 'Certificates', href: '#certifications' },
     { name: 'Contact', href: '#contact' },
   ];
 
@@ -1368,6 +1368,157 @@ const Timeline = () => {
   );
 };
 
+// Certifications Section
+const Certifications = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const certificates = [
+    {
+      id: 1,
+      title: "Data Structures & Algorithms",
+      issuer: "Apna College",
+      image: "/DSACertificate.png", // Replace with your actual certificate image path
+      description: "Comprehensive course covering fundamental DSA concepts and problem-solving techniques"
+    },
+    {
+      id: 2,
+      title: "Web Development",
+      issuer: "Apna College",
+      image: "/DSACertificate.png", // Replace with your actual certificate image path
+      description: "Full-stack web development covering HTML, CSS, JavaScript, React, Node.js, and MongoDB"
+    },
+    {
+      id: 3,
+      title: "Data Science",
+      issuer: "CodeWithHarry",
+      image: "/DSCertificate.png", // Replace with your actual certificate image path
+      description: "Introduction to Data Science, Python, Machine Learning, and data analysis techniques"
+    }
+  ];
+  
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % certificates.length);
+  };
+  
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + certificates.length) % certificates.length);
+  };
+  
+  useEffect(() => {
+    const interval = setInterval(nextSlide, 5000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  return (
+    <section id="certifications" className="py-20 bg-gray-50/50 dark:bg-gray-900/50">
+      <div className="container mx-auto px-4">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="text-4xl md:text-5xl font-bold text-center mb-16"
+        >
+          <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            Certifications
+          </span>
+        </motion.h2>
+        
+        <div className="max-w-4xl mx-auto relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 1 }}
+              className="bg-white/80 dark:bg-black/20 backdrop-blur-xl rounded-2xl border border-gray-300/50 dark:border-white/10 overflow-hidden shadow-2xl"
+            >
+              {/* Certificate Image */}
+              <div className="relative h-64 md:h-96 bg-gradient-to-br from-purple-500/10 to-cyan-500/10">
+                <img
+                  src={certificates[currentIndex].image}
+                  alt={certificates[currentIndex].title}
+                  className="w-full h-full object-contain p-4"
+                  onError={(e) => {
+                    e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="monospace" font-size="20" fill="%23999"%3ECertificate%3C/text%3E%3C/svg%3E';
+                  }}
+                />
+                
+                {/* Badge */}
+                <div className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-cyan-500 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
+                  <FaTrophy />
+                  Certified
+                </div>
+              </div>
+              
+              {/* Certificate Details */}
+              <div className="p-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <FaGraduationCap className="text-3xl text-purple-500" />
+                  <div>
+                    <h3 className="text-2xl font-bold">{certificates[currentIndex].title}</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Issued by {certificates[currentIndex].issuer}
+                    </p>
+                  </div>
+                </div>
+                
+                <p className="text-gray-700 dark:text-gray-300 mb-6">
+                  {certificates[currentIndex].description}
+                </p>
+                
+                {/* Progress Indicator */}
+                <div className="flex justify-center gap-2">
+                  {certificates.map((_, index) => (
+                    <button
+                      key={index}
+                      className={`transition-all ${
+                        index === currentIndex
+                          ? 'w-8 h-2 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full'
+                          : 'w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full hover:bg-gray-500'
+                      }`}
+                      onClick={() => setCurrentIndex(index)}
+                      aria-label={`Go to certificate ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+          
+          {/* Navigation Buttons */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 bg-white/90 dark:bg-black/50 backdrop-blur-sm p-3 rounded-full shadow-lg hover:bg-white dark:hover:bg-black/70 transition-all"
+            aria-label="Previous certificate"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          
+          <button
+            onClick={nextSlide}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 bg-white/90 dark:bg-black/50 backdrop-blur-sm p-3 rounded-full shadow-lg hover:bg-white dark:hover:bg-black/70 transition-all"
+            aria-label="Next certificate"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+        
+        {/* Certificate Counter */}
+        <div className="text-center mt-8">
+          <p className="text-gray-600 dark:text-gray-400">
+            Certificate {currentIndex + 1} of {certificates.length}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+
 // Testimonials Section
 const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -1886,8 +2037,7 @@ const App = () => {
           <LeetCodeStats />
           <Projects />
           <TechStack />
-          <CodeSnippets />
-          <Timeline />
+          <Certifications />
           {/* <Testimonials /> */}
           <Contact /> 
         </main>
